@@ -1,7 +1,7 @@
 //-----------------------------------------------------------
-// Dr. Art Hanna
-// SPL Reader "driver" program
-// SPLReader.cpp
+// Lauren Escobedo
+// why Reader "driver" program
+// whyReader.cpp
 //-----------------------------------------------------------
 #include <iostream>
 #include <iomanip>
@@ -17,7 +17,7 @@ using namespace std;
 
 #define TRACEREADER
 
-#include "..\..\SPL.h"
+#include "why.h"
 
 //-----------------------------------------------------------
 int main()
@@ -51,12 +51,12 @@ int main()
       } while ( nextCharacter.character != READER<CALLBACKSUSED>::EOPC );
 //      } while ( nextCharacter.character != READER::EOPC );
    }
-   catch (SPLEXCEPTION splException)
+   catch (WHY_EXCEPTION exception)
    {
-      cout << "SPL exception: " << splException.GetDescription() << endl;
+      cout << "why exception: " << exception.GetDescription() << endl;
    }
-   lister.ListInformationLine("******* SPL reader ending");
-   cout << "SPL reader ending\n";
+   lister.ListInformationLine("******* why reader ending");
+   cout << "why reader ending\n";
 
    system("PAUSE");
    return( 0 );

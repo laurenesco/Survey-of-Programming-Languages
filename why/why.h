@@ -1,13 +1,13 @@
 //-----------------------------------------------------------
-// Dr. Art Hanna
-// SPL compiler "global" definitions and the common classes
-//    SPLEXCEPTION, LISTER, READER, CODE, and IDENTIFIERTABLE
+// Lauren Escobedo
+// why compiler "global" definitions and the common classes
+//    WHY_EXCEPTION, LISTER, READER, CODE, and IDENTIFIER_TABLE
 //
 // *Note* Several common classes are commented to indicate their
 //    required evolution to support incremental development of the 
-//    SPL compiler
+//    why compiler
 //
-// SPL.h
+// why.h
 //-----------------------------------------------------------
 
 #define CALLBACKSUSED 2
@@ -24,7 +24,7 @@ enum DATATYPE
    INTEGERTYPE,
    BOOLEANTYPE,
 //--------------------------------------------------
-// ADDED FOR SPL9
+// ADDED FOR why9
 //--------------------------------------------------
    FLOATTYPE
 };
@@ -36,7 +36,7 @@ enum DATATYPE
    INTTYPE,
    BOOLTYPE,
 //--------------------------------------------------
-// ADDED FOR SPL9
+// ADDED FOR why9
 //--------------------------------------------------
    FLTTYPE
 };
@@ -49,14 +49,14 @@ enum IDENTIFIERSCOPE
    SUBPROGRAMMODULESCOPE
 };
 
-enum IDENTIFIERTYPE
+enum IDENTIFIER_TYPE
 {
    GLOBAL_VARIABLE,           // static global variable data
    GLOBAL_CONSTANT,           // static global constant data
    PROGRAMMODULE_VARIABLE,    // static PROGRAM module local variable data
    PROGRAMMODULE_CONSTANT,    // static PROGRAM module local constant data
 //--------------------------------------------------
-// ADDED FOR SPL6
+// ADDED FOR why6
 //--------------------------------------------------
    SUBPROGRAMMODULE_VARIABLE, // automatic, frame-based data
    SUBPROGRAMMODULE_CONSTANT, // automatic, frame-based data
@@ -66,13 +66,13 @@ enum IDENTIFIERTYPE
    REF_PARAMETER,             // automatic, frame-based data
    PROCEDURE_SUBPROGRAMMODULE,// module name
 //-----------------------------------------------------------
-// ADDED FOR SPL7
+// ADDED FOR why7
 //-----------------------------------------------------------
    FUNCTION_SUBPROGRAMMODULE  // module name
 };
 
 //===========================================================
-class SPLEXCEPTION
+class WHY_EXCEPTION
 //===========================================================
 {
 private:
@@ -80,7 +80,7 @@ private:
 
 public:
    //-----------------------------------------------------------
-   SPLEXCEPTION(const char description[])
+   WHY_EXCEPTION(const char description[])
    //-----------------------------------------------------------
    {
       strcpy(this->description,description);
@@ -142,11 +142,11 @@ void LISTER::OpenFile(const char sourceFileName[])
    char fullFileName[80+1];
 
    strcpy(this->sourceFileName,sourceFileName);
-   strcat(this->sourceFileName,".spl");
+   strcat(this->sourceFileName,".why");
    strcpy(fullFileName,sourceFileName);
    strcat(fullFileName,".list");
    LIST.open(fullFileName,ios::out);
-   if ( !LIST.is_open() ) throw( SPLEXCEPTION("Unable to open list file") );
+   if ( !LIST.is_open() ) throw( WHY_EXCEPTION("Unable to open list file") );
    ListTopOfPageHeader();
 }
 
@@ -271,9 +271,9 @@ void READER<CALLBACKSALLOWED>::OpenFile(const char sourceFileName[])
    char fullFileName[80+1];
 
    strcpy(fullFileName,sourceFileName);
-   strcat(fullFileName,".spl");
+   strcat(fullFileName,".why");
    SOURCE.open(fullFileName,ios::in);
-   if ( !SOURCE.is_open() ) throw( SPLEXCEPTION("Unable to open source file") );
+   if ( !SOURCE.is_open() ) throw( WHY_EXCEPTION("Unable to open source file") );
 
 // Read first source line and "fill" nextCharacters[] 
    ReadSourceLine();
@@ -382,7 +382,7 @@ NEXTCHARACTER READER<CALLBACKSALLOWED>::GetLookAheadCharacter(int index)
    if ( (0 <= index) && (index <= LOOKAHEAD) )
       return( nextCharacters[index] );
    else
-      throw( SPLEXCEPTION("GetLookAheadCharacter() index out-of-range") );
+      throw( WHY_EXCEPTION("GetLookAheadCharacter() index out-of-range") );
 }
 
 //-----------------------------------------------------------
@@ -394,7 +394,7 @@ void READER<CALLBACKSALLOWED>::AddCallbackFunction(
    if ( numberCallbacks <= CALLBACKSALLOWED )
       CallbackFunctions[++numberCallbacks] = CallbackFunction;
    else
-      throw( SPLEXCEPTION("Too many callback functions") );
+      throw( WHY_EXCEPTION("Too many callback functions") );
 }
 
 //-----------------------------------------------------------
@@ -429,19 +429,19 @@ void READER<CALLBACKSALLOWED>::ReadSourceLine()
 }
 
 //===========================================================
-class IDENTIFIERTABLE
+class IDENTIFIER_TABLE
 //===========================================================
 {
 private:
-   struct IDENTIFIERRECORD
+   struct IDENTIFIER_RECORD
    {
       int scope;
       char lexeme[MAXIMUMLENGTHIDENTIFIER+1];
-      IDENTIFIERTYPE identifierType;
+      IDENTIFIER_TYPE identifierType;
       char reference[MAXIMUMLENGTHIDENTIFIER+1];
       DATATYPE datatype;
 //--------------------------------------------------
-// ADDED FOR SPL8
+// ADDED FOR why8
 //--------------------------------------------------
       int dimensions;
    };
@@ -453,19 +453,19 @@ private:
 private:
    int capacity;
    int identifiers;
-   IDENTIFIERRECORD *identifierTable;
+   IDENTIFIER_RECORD *identifierTable;
    int scopes;
    int *scopeTable;
    LISTER *lister;
 
 public:
-   IDENTIFIERTABLE(LISTER *lister,int capacity);
-   ~IDENTIFIERTABLE();
+   IDENTIFIER_TABLE(LISTER *lister,int capacity);
+   ~IDENTIFIER_TABLE();
    int GetIndex(const char lexeme[],bool &isInTable);
 //--------------------------------------------------
-// MODIFIED FOR SPL8
+// MODIFIED FOR why8
 //--------------------------------------------------
-   void AddToTable(const char lexeme[],IDENTIFIERTYPE identifierType,
+   void AddToTable(const char lexeme[],IDENTIFIER_TYPE identifierType,
                    DATATYPE datatype,const char reference[],int dimensions = 0);
    void EnterNestedStaticScope();
    void ExitNestedStaticScope();
@@ -483,7 +483,7 @@ public:
    { 
       return( identifierTable[index].scope );
    }
-   IDENTIFIERTYPE GetType(int index)
+   IDENTIFIER_TYPE GetType(int index)
    { 
       return( identifierTable[index].identifierType );
    }
@@ -500,11 +500,11 @@ public:
       return( identifierTable[index].datatype );
    }
 //--------------------------------------------------
-// ADDED FOR SPL6
+// ADDED FOR why6
 //--------------------------------------------------
    int GetCountOfFormalParameters(int index);
 //--------------------------------------------------
-// ADDED FOR SPL8
+// ADDED FOR why8
 //--------------------------------------------------
    int GetDimensions(int index)
    {
@@ -513,7 +513,7 @@ public:
 };
 
 //-----------------------------------------------------------
-const char IDENTIFIERTABLE::IDENTIFIERTYPENAMES[][26+1] =
+const char IDENTIFIER_TABLE::IDENTIFIERTYPENAMES[][26+1] =
 //-----------------------------------------------------------
 {
    "GLOBAL_VARIABLE",
@@ -521,7 +521,7 @@ const char IDENTIFIERTABLE::IDENTIFIERTYPENAMES[][26+1] =
    "PROGRAMMODULE_VARIABLE",
    "PROGRAMMODULE_CONSTANT",
 //--------------------------------------------------
-// ADDED FOR SPL6
+// ADDED FOR why6
 //--------------------------------------------------
    "SUBPROGRAMMODULE_VARIABLE",
    "SUBPROGRAMMODULE_CONSTANT",
@@ -531,38 +531,38 @@ const char IDENTIFIERTABLE::IDENTIFIERTYPENAMES[][26+1] =
    "REF_PARAMETER",
    "PROCEDURE_SUBPROGRAMMODULE",
 //-----------------------------------------------------------
-// ADDED FOR SPL7
+// ADDED FOR why7
 //-----------------------------------------------------------
    "FUNCTION_SUBPROGRAMMODULE"
 };
 
 //-----------------------------------------------------------
-const char IDENTIFIERTABLE::DATATYPENAMES[][9+1] =
+const char IDENTIFIER_TABLE::DATATYPENAMES[][9+1] =
 //-----------------------------------------------------------
 {
    "NOTYPE",
    "INTEGER",
    "BOOLEAN",
 //--------------------------------------------------
-// ADDED FOR SPL9
+// ADDED FOR why9
 //--------------------------------------------------
    "FLOAT"
 };
 
 //-----------------------------------------------------------
-IDENTIFIERTABLE::IDENTIFIERTABLE(LISTER *lister,int capacity)
+IDENTIFIER_TABLE::IDENTIFIER_TABLE(LISTER *lister,int capacity)
 //-----------------------------------------------------------
 {
    this->lister = lister;
    this->capacity = capacity;
-   identifierTable = new IDENTIFIERRECORD [ capacity+1 ];
+   identifierTable = new IDENTIFIER_RECORD [ capacity+1 ];
    identifiers = 0;
    scopeTable = new int [ capacity+1 ];
    scopes = 0;
 }
 
 //-----------------------------------------------------------
-IDENTIFIERTABLE::~IDENTIFIERTABLE()
+IDENTIFIER_TABLE::~IDENTIFIER_TABLE()
 //-----------------------------------------------------------
 {
    delete [] identifierTable;
@@ -570,7 +570,7 @@ IDENTIFIERTABLE::~IDENTIFIERTABLE()
 }
 
 //-----------------------------------------------------------
-int IDENTIFIERTABLE::GetIndex(const char lexeme[],bool &isInTable)
+int IDENTIFIER_TABLE::GetIndex(const char lexeme[],bool &isInTable)
 //-----------------------------------------------------------
 {
 /*
@@ -598,7 +598,7 @@ int IDENTIFIERTABLE::GetIndex(const char lexeme[],bool &isInTable)
          index -= 1;
    }
 
-#ifdef TRACEIDENTIFIERTABLE
+#ifdef TRACEIDENTIFIER_TABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -615,7 +615,7 @@ int IDENTIFIERTABLE::GetIndex(const char lexeme[],bool &isInTable)
 }
 
 //-----------------------------------------------------------
-void IDENTIFIERTABLE::AddToTable(const char lexeme[],IDENTIFIERTYPE identifierType,
+void IDENTIFIER_TABLE::AddToTable(const char lexeme[],IDENTIFIER_TYPE identifierType,
                                  DATATYPE datatype,const char reference[],int dimensions /* = 0*/)
 //-----------------------------------------------------------
 {
@@ -624,7 +624,7 @@ void IDENTIFIERTABLE::AddToTable(const char lexeme[],IDENTIFIERTYPE identifierTy
       identifier being added is *NOT* in the identifier table
 */
    if ( identifiers > capacity )
-      throw( SPLEXCEPTION("Identifier table capacity exceeded") );
+      throw( WHY_EXCEPTION("Identifier table capacity exceeded") );
    else
    {
       identifiers++;
@@ -636,7 +636,7 @@ void IDENTIFIERTABLE::AddToTable(const char lexeme[],IDENTIFIERTYPE identifierTy
       identifierTable[identifiers].dimensions = dimensions;
    }
 
-#ifdef TRACEIDENTIFIERTABLE
+#ifdef TRACEIDENTIFIER_TABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -652,12 +652,12 @@ void IDENTIFIERTABLE::AddToTable(const char lexeme[],IDENTIFIERTYPE identifierTy
 }
 
 //--------------------------------------------------
-void IDENTIFIERTABLE::EnterNestedStaticScope()
+void IDENTIFIER_TABLE::EnterNestedStaticScope()
 //--------------------------------------------------
 {
    scopeTable[++scopes] = identifiers;
 
-#ifdef TRACEIDENTIFIERTABLE
+#ifdef TRACEIDENTIFIER_TABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -670,9 +670,9 @@ void IDENTIFIERTABLE::EnterNestedStaticScope()
 }
 
 //--------------------------------------------------
-// UPDATED FOR SPL6, SPL7
+// UPDATED FOR why6, why7
 //--------------------------------------------------
-void IDENTIFIERTABLE::ExitNestedStaticScope()
+void IDENTIFIER_TABLE::ExitNestedStaticScope()
 //--------------------------------------------------
 {
 /*
@@ -700,7 +700,7 @@ void IDENTIFIERTABLE::ExitNestedStaticScope()
          identifierTable[identifiers].lexeme[0] = '\0';
       }
 
-#ifdef TRACEIDENTIFIERTABLE
+#ifdef TRACEIDENTIFIER_TABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -713,7 +713,7 @@ void IDENTIFIERTABLE::ExitNestedStaticScope()
 }
 
 //--------------------------------------------------
-void IDENTIFIERTABLE::DisplayTableContents(const char description[])
+void IDENTIFIER_TABLE::DisplayTableContents(const char description[])
 //--------------------------------------------------
 {
 /*
@@ -752,9 +752,9 @@ XXX   XXX XXXXXXXXX        XXX XXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXX X
 }
 
 //--------------------------------------------------
-// ADDED FOR SPL6
+// ADDED FOR why6
 //--------------------------------------------------
-int IDENTIFIERTABLE::GetCountOfFormalParameters(int index)
+int IDENTIFIER_TABLE::GetCountOfFormalParameters(int index)
 //--------------------------------------------------
 {
 /*
@@ -776,7 +776,7 @@ int IDENTIFIERTABLE::GetCountOfFormalParameters(int index)
       index++;
    }
 
-#ifdef TRACEIDENTIFIERTABLE
+#ifdef TRACEIDENTIFIER_TABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -794,13 +794,13 @@ class CODE
 //===========================================================
 {
 /*
-   SPL static data--global variable/constant definitions, string literals, and 
+   why static data--global variable/constant definitions, string literals, and 
       PROGRAM module variables/constants--are parsed both very early in the
       compile and near the end of the compile. As a result, their STM code must
       be "stored" because the code cannot be emitted until *AFTER* the entire
-      SPL program has been parsed.
+      why program has been parsed.
 
-   SPL dynamic (frame-resident) data--subprogram module formal parameters and
+   why dynamic (frame-resident) data--subprogram module formal parameters and
       local variables/constants--have storage space accounted for when their
       definitions are parsed. The frame space is then allocated using STM 
       statements emitted as part of the subprogram module prolog code. 
@@ -820,15 +820,15 @@ private:
    int SBOffset;
    int labelsuffix;
 //--------------------------------------------------
-// ADDED FOR SPL6
+// ADDED FOR why6
 //--------------------------------------------------
    vector<DATARECORD> framedata;
    int FBOffset;
    bool isInModuleBody;
    int moduleIdentifierIndex;
-   IDENTIFIERTYPE moduleIdentifierType;
+   IDENTIFIER_TYPE moduleIdentifierType;
 //--------------------------------------------------
-// ADDED FOR SPL9
+// ADDED FOR why9
 //--------------------------------------------------
    bool assertionsON;
 
@@ -847,19 +847,19 @@ public:
    void EmitFormattedLine(const char label[],const char mnemonic[],const char operand[] = "",const char comment[] = "");
    void EmitUnformattedLine(const char line[]);
 //--------------------------------------------------
-// ADDED FOR SPL6
+// ADDED FOR why6
 //--------------------------------------------------
    void ResetFrameData();
    void IncrementFBOffset(int increment = 1);
    int GetFBOffset();
    void AddInstructionToInitializeFrameData(const char mnemonic[],const char operand[],const char comment[] = "");
    void EmitFrameData();
-   void EnterModuleBody(IDENTIFIERTYPE moduleIdentifierType,int moduleIdentifierIndex);
+   void EnterModuleBody(IDENTIFIER_TYPE moduleIdentifierType,int moduleIdentifierIndex);
    void ExitModuleBody();
-   bool IsInModuleBody(IDENTIFIERTYPE moduleIdentifierType);
+   bool IsInModuleBody(IDENTIFIER_TYPE moduleIdentifierType);
    int GetModuleIdentifierIndex();
 //--------------------------------------------------
-// ADDED FOR SPL9
+// ADDED FOR why9
 //--------------------------------------------------
    void SetAssertionsON(const bool setting = true)
    {
@@ -879,11 +879,11 @@ CODE::CODE()
    SBOffset = 0;
    labelsuffix = 0;
 //--------------------------------------------------
-// ADDED FOR SPL6
+// ADDED FOR why6
 //--------------------------------------------------
    isInModuleBody = false;
 //--------------------------------------------------
-// ADDED FOR SPL9
+// ADDED FOR why9
 //--------------------------------------------------
    assertionsON = true;
 }
@@ -906,7 +906,7 @@ void CODE::OpenFile(const char sourceFileName[])
    strcpy(codeFileName,sourceFileName);
    strcat(codeFileName,".stm");
    STM.open(codeFileName,ios::out);
-   if ( !STM.is_open() ) throw( SPLEXCEPTION("Unable to open code file") );
+   if ( !STM.is_open() ) throw( WHY_EXCEPTION("Unable to open code file") );
 }
 
 //--------------------------------------------------
@@ -974,7 +974,7 @@ void CODE::EmitEndingCode()
 
    EmitUnformattedLine("");
    EmitUnformattedLine(";------------------------------------------------------------");
-   EmitUnformattedLine("; Heap space for dynamic memory allocation (to support future SPL syntax)");
+   EmitUnformattedLine("; Heap space for dynamic memory allocation (to support future why syntax)");
    EmitUnformattedLine(";------------------------------------------------------------");
    EmitFormattedLine("HEAPBASE","EQU","*");
    EmitFormattedLine("HEAPSIZE","EQU","0B0001000000000000","8K bytes = 4K words");
@@ -1117,7 +1117,7 @@ void CODE::EmitFrameData()
 }
 
 //--------------------------------------------------
-void CODE::EnterModuleBody(IDENTIFIERTYPE moduleIdentifierType,int moduleIdentifierIndex)
+void CODE::EnterModuleBody(IDENTIFIER_TYPE moduleIdentifierType,int moduleIdentifierIndex)
 //--------------------------------------------------
 {
    isInModuleBody = true;
@@ -1133,7 +1133,7 @@ void CODE::ExitModuleBody()
 }
 
 //--------------------------------------------------
-bool CODE::IsInModuleBody(IDENTIFIERTYPE moduleIdentifierType)
+bool CODE::IsInModuleBody(IDENTIFIER_TYPE moduleIdentifierType)
 //--------------------------------------------------
 {
    return( isInModuleBody && (this->moduleIdentifierType == moduleIdentifierType) );
