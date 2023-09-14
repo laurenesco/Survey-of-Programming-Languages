@@ -1,7 +1,7 @@
 //-----------------------------------------------------------
-// Dr. Art Hanna
-// SPL1 Scanner
-// SPL1Scanner.cpp
+// Dr. Art Hanna & Lauren Escobedo
+// why Scanner
+// whyScanner.cpp
 //-----------------------------------------------------------
 #include <iostream>
 #include <iomanip>
@@ -18,25 +18,25 @@ using namespace std;
 //#define TRACEREADER
 #define TRACESCANNER
 
-#include "..\..\SPL.h"
+#include "why.h"
 
 //-----------------------------------------------------------
 typedef enum
 //-----------------------------------------------------------
 {
 // pseudo-terminals
-   IDENTIFIER,
-   STRING,
-   EOPTOKEN,
-   UNKTOKEN,
+   identifier,
+   words,
+   stop,
+   unknown,
 // reserved words
-   PROGRAM,
-   END,
-   PRINT,
-   ENDL,
+   start,
+  	done,
+   say,
+   newl,
 // punctuation
-   COMMA,
-   PERIOD,
+   divider,
+   endline,
 // operators
 // ***NONE***
 } TOKENTYPE;
@@ -54,16 +54,16 @@ struct TOKENTABLERECORD
 const TOKENTABLERECORD TOKENTABLE[] =
 //-----------------------------------------------------------
 {
-   { IDENTIFIER  ,"IDENTIFIER"  ,false },
-   { STRING      ,"STRING"      ,false },
-   { EOPTOKEN    ,"EOPTOKEN"    ,false },
-   { UNKTOKEN    ,"UNKTOKEN"    ,false },
-   { PROGRAM     ,"PROGRAM"     ,true  },
-   { END         ,"END"         ,true  },
-   { PRINT       ,"PRINT"       ,true  },
-   { ENDL        ,"ENDL"        ,true  },
-   { COMMA       ,"COMMA"       ,false },
-   { PERIOD      ,"PERIOD"      ,false }
+   { identifier  ,"identifier"  ,false },
+   { words		  ,"words"       ,false },
+   { stop        ,"stop"        ,false },
+   { unknown     ,"unknown"     ,false },
+   { start       ,"start"       ,true  },
+   { done        ,"done"        ,true  },
+   { say         ,"say"         ,true  },
+   { newl        ,"newl"        ,true  },
+   { divider     ,"divider"     ,false },
+   { endline     ,"endline"     ,false }
 };
 
 //-----------------------------------------------------------
@@ -89,10 +89,10 @@ void ProcessCompilerError(int sourceLineNumber,int sourceLineIndex,const char er
    char information[SOURCELINELENGTH+1];
 
 // Use "panic mode" error recovery technique: report error message and terminate compilation!
-   sprintf(information,"     At (%4d:%3d) %s",sourceLineNumber,sourceLineIndex,errorMessage);
+   sprintf(information,"     At (%4d:%3d)s",sourceLineNumber,sourceLineIndex,errorMessage);
    lister.ListInformationLine(information);
-   lister.ListInformationLine("SPL compiler ending with compiler error!\n");
-   throw( SPLEXCEPTION("SPL compiler ending with compiler error!") );
+   lister.ListInformationLine("Compiler ending with compiler error!\n");
+   throw( WHY_EXCEPTION("Compiler ending with compiler error!") );
 }
 
 //-----------------------------------------------------------
@@ -105,8 +105,8 @@ int main()
 
    char sourceFileName[80+1];
    TOKEN tokens[LOOKAHEAD+1];
-   
-   cout << "Source filename? ";
+
+   cout << "Filename: ";
    cin >> sourceFileName;
 
    try
@@ -122,19 +122,19 @@ int main()
          GetNextToken(tokens);
 
    // Scan entire source file (causes outputting of TRACESCANNER-enabled information to list file)
-      while ( tokens[0].type != EOPTOKEN )
+      while ( tokens[0].type != stop )
          GetNextToken(tokens);
    }
-   catch (SPLEXCEPTION splException)
+   catch (WHY_EXCEPTION e)
    {
-      cout << "SPL exception: " << splException.GetDescription() << endl;
+      cout << "Exception: " << e.GetDescription() << endl;
    }
-   lister.ListInformationLine("******* SPL1 scanner ending");
-   cout << "SPL1 scanner ending\n";
+   lister.ListInformationLine("Scanner ending");
+   cout << "Scanner ending\n";
 
    system("PAUSE");
    return( 0 );
-   
+
 }
 
 //-----------------------------------------------------------
@@ -177,14 +177,14 @@ void GetNextToken(TOKEN tokens[])
 //============================================================
    do
    {
-//    "Eat" any white-space (blanks and EOLCs and TABCs) 
+//    "Eat" any white-space (blanks and EOLCs and TABCs)
       while ( (nextCharacter == ' ')
            || (nextCharacter == READER<CALLBACKSUSED>::EOLC)
            || (nextCharacter == READER<CALLBACKSUSED>::TABC) )
          nextCharacter = reader.GetNextCharacter().character;
 
 //    "Eat" line comment
-      if ( nextCharacter == ';' )
+      if ( nextCharacter == '!' )
       {
 
 #ifdef TRACESCANNER
@@ -197,21 +197,21 @@ void GetNextToken(TOKEN tokens[])
          do
             nextCharacter = reader.GetNextCharacter().character;
          while ( nextCharacter != READER<CALLBACKSUSED>::EOLC );
-      } 
+      }
 
 //    "Eat" block comments (nesting allowed)
-      if ( (nextCharacter == '/') && (reader.GetLookAheadCharacter(1).character == '*') )
+      if ( (nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~') )
       {
          int depth = 0;
 
          do
          {
-            if ( (nextCharacter == '/') && (reader.GetLookAheadCharacter(1).character == '*') )
+            if ( (nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~') )
             {
                depth++;
 
 #ifdef TRACESCANNER
-   sprintf(information,"At (%4d:%3d) begin block comment depth = %d",
+   sprintf(information,"At (%4d:%3d) begin block comment depth = d",
       reader.GetLookAheadCharacter(0).sourceLineNumber,
       reader.GetLookAheadCharacter(0).sourceLineIndex,
       depth);
@@ -221,11 +221,11 @@ void GetNextToken(TOKEN tokens[])
                nextCharacter = reader.GetNextCharacter().character;
                nextCharacter = reader.GetNextCharacter().character;
             }
-            else if ( (nextCharacter == '*') && (reader.GetLookAheadCharacter(1).character == '/') )
+            else if ( (nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~') )
             {
 
 #ifdef TRACESCANNER
-   sprintf(information,"At (%4d:%3d)   end block comment depth = %d",
+   sprintf(information,"At (%4d:%3d) end block comment depth = d",
       reader.GetLookAheadCharacter(0).sourceLineNumber,
       reader.GetLookAheadCharacter(0).sourceLineIndex,
       depth);
@@ -240,7 +240,7 @@ void GetNextToken(TOKEN tokens[])
                nextCharacter = reader.GetNextCharacter().character;
          }
          while ( (depth != 0) && (nextCharacter != READER<CALLBACKSUSED>::EOPC) );
-         if ( depth != 0 ) 
+         if ( depth != 0 )
             ProcessCompilerError(reader.GetLookAheadCharacter(0).sourceLineNumber,
                                  reader.GetLookAheadCharacter(0).sourceLineIndex,
                                  "Unexpected end-of-program");
@@ -248,8 +248,8 @@ void GetNextToken(TOKEN tokens[])
    } while ( (nextCharacter == ' ')
           || (nextCharacter == READER<CALLBACKSUSED>::EOLC)
           || (nextCharacter == READER<CALLBACKSUSED>::TABC)
-          || (nextCharacter == ';')
-          || ((nextCharacter == '/') && (reader.GetLookAheadCharacter(1).character == '*')) );
+          || (nextCharacter == '!')
+          || ((nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~')) );
 
 //============================================================
 // Scan token
@@ -287,19 +287,19 @@ void GetNextToken(TOKEN tokens[])
       if ( isFound )
          type = TOKENTABLE[i].type;
       else
-         type = IDENTIFIER;
+         type = identifier;
    }
    else
    {
       switch ( nextCharacter )
       {
 // <string>
-         case '"': 
+         case '-':
             i = 0;
             nextCharacter = reader.GetNextCharacter().character;
-            while ( (nextCharacter != '"') && (nextCharacter != READER<CALLBACKSUSED>::EOLC) )
+            while ( (nextCharacter != '-') && (nextCharacter != READER<CALLBACKSUSED>::EOLC) )
             {
-               if      ( (nextCharacter == '\\') && (reader.GetLookAheadCharacter(1).character == '"') )
+               if      ( (nextCharacter == '\\') && (reader.GetLookAheadCharacter(1).character == '=') )
                {
                   lexeme[i++] = nextCharacter;
                   nextCharacter = reader.GetNextCharacter().character;
@@ -314,38 +314,38 @@ void GetNextToken(TOKEN tokens[])
             }
             if ( nextCharacter == READER<CALLBACKSUSED>::EOLC )
                ProcessCompilerError(sourceLineNumber,sourceLineIndex,
-                                    "Invalid string literal");
+                                    "Invalid string");
             lexeme[i] = '\0';
-            type = STRING;
+            type = words;
             reader.GetNextCharacter();
             break;
-         case READER<CALLBACKSUSED>::EOPC: 
+         case READER<CALLBACKSUSED>::EOPC:
             {
                static int count = 0;
-   
+
                if ( ++count > (LOOKAHEAD+1) )
                   ProcessCompilerError(sourceLineNumber,sourceLineIndex,
                                        "Unexpected end-of-program");
                else
                {
-                  type = EOPTOKEN;
+                  type = stop;
                   reader.GetNextCharacter();
                   lexeme[0] = '\0';
                }
             }
             break;
-         case ',':
-            type = COMMA;
+         case '?':
+            type = divider;
             lexeme[0] = nextCharacter; lexeme[1] = '\0';
             reader.GetNextCharacter();
             break;
-         case '.': 
-            type = PERIOD;
+         case '=':
+            type = endline;
             lexeme[0] = nextCharacter; lexeme[1] = '\0';
             reader.GetNextCharacter();
             break;
-         default:  
-            type = UNKTOKEN;
+         default:
+            type = unknown;
             lexeme[0] = nextCharacter; lexeme[1] = '\0';
             reader.GetNextCharacter();
             break;
@@ -358,7 +358,7 @@ void GetNextToken(TOKEN tokens[])
    tokens[LOOKAHEAD].sourceLineIndex = sourceLineIndex;
 
 #ifdef TRACESCANNER
-   sprintf(information,"At (%4d:%3d) token = %12s lexeme = |%s|",
+   sprintf(information,"At (%4d:%3d) token = 12s lexeme = |%s|",
       tokens[LOOKAHEAD].sourceLineNumber,
       tokens[LOOKAHEAD].sourceLineIndex,
       TokenDescription(type),lexeme);
@@ -373,7 +373,7 @@ const char *TokenDescription(TOKENTYPE type)
 {
    int i;
    bool isFound;
-   
+
    isFound = false;
    i = 0;
    while ( !isFound && (i <= (sizeof(TOKENTABLE)/sizeof(TOKENTABLERECORD))-1) )
@@ -383,5 +383,5 @@ const char *TokenDescription(TOKENTYPE type)
       else
          i++;
    }
-   return ( isFound ? TOKENTABLE[i].description : "???????" );
+   return ( isFound ? TOKENTABLE[i].description : "what even is this" );
 }
