@@ -200,18 +200,18 @@ void GetNextToken(TOKEN tokens[])
       }
 
 //    "Eat" block comments (nesting allowed)
-      if ( (nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~') )
+      if ( (nextCharacter == '-') && (reader.GetLookAheadCharacter(1).character == '=') )
       {
          int depth = 0;
 
          do
          {
-            if ( (nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~') )
+            if ( (nextCharacter == '-') && (reader.GetLookAheadCharacter(1).character == '=') )
             {
                depth++;
 
 #ifdef TRACESCANNER
-   sprintf(information,"At (%4d:%3d) begin block comment depth = d",
+   sprintf(information,"At (%4d:%3d) begin block comment depth = %d",
       reader.GetLookAheadCharacter(0).sourceLineNumber,
       reader.GetLookAheadCharacter(0).sourceLineIndex,
       depth);
@@ -221,11 +221,11 @@ void GetNextToken(TOKEN tokens[])
                nextCharacter = reader.GetNextCharacter().character;
                nextCharacter = reader.GetNextCharacter().character;
             }
-            else if ( (nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~') )
+            else if ( (nextCharacter == '=') && (reader.GetLookAheadCharacter(1).character == '-') )
             {
 
 #ifdef TRACESCANNER
-   sprintf(information,"At (%4d:%3d) end block comment depth = d",
+   sprintf(information,"At (%4d:%3d) end block comment depth = %d",
       reader.GetLookAheadCharacter(0).sourceLineNumber,
       reader.GetLookAheadCharacter(0).sourceLineIndex,
       depth);
@@ -249,7 +249,7 @@ void GetNextToken(TOKEN tokens[])
           || (nextCharacter == READER<CALLBACKSUSED>::EOLC)
           || (nextCharacter == READER<CALLBACKSUSED>::TABC)
           || (nextCharacter == '!')
-          || ((nextCharacter == '~') && (reader.GetLookAheadCharacter(1).character == '~')) );
+          || ((nextCharacter == '-') && (reader.GetLookAheadCharacter(1).character == '=')) );
 
 //============================================================
 // Scan token
@@ -299,7 +299,7 @@ void GetNextToken(TOKEN tokens[])
             nextCharacter = reader.GetNextCharacter().character;
             while ( (nextCharacter != '-') && (nextCharacter != READER<CALLBACKSUSED>::EOLC) )
             {
-               if      ( (nextCharacter == '\\') && (reader.GetLookAheadCharacter(1).character == '=') )
+               if      ( (nextCharacter == '\\') && (reader.GetLookAheadCharacter(1).character == '-') )
                {
                   lexeme[i++] = nextCharacter;
                   nextCharacter = reader.GetNextCharacter().character;
