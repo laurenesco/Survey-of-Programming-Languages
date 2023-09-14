@@ -1,0 +1,4 @@
+PROGRAM
+   PRINT "\"Howdy, world!\"\n".
+   PRINT "\"Howdy, world!\"",ENDL.
+END
