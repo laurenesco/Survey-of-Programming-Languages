@@ -358,7 +358,7 @@ void GetNextToken(TOKEN tokens[])
    tokens[LOOKAHEAD].sourceLineIndex = sourceLineIndex;
 
 #ifdef TRACESCANNER
-   sprintf(information,"At (%4d:%3d) token = 12s lexeme = |%s|",
+   sprintf(information,"At (%4d:%3d) token = %12s lexeme = |%s|",
       tokens[LOOKAHEAD].sourceLineNumber,
       tokens[LOOKAHEAD].sourceLineIndex,
       TokenDescription(type),lexeme);
