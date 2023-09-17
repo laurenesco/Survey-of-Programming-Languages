@@ -48,7 +48,7 @@ struct TOKENTABLERECORD {
 const TOKENTABLERECORD TOKENDICT[] = {
         {identifier, "identifier", false},
         {words, "words", false},
-        {stop, "stop", false},
+        {stop, "stop", true},
         {unknown, "unknown", false},
         {start, "start", true},
         {done, "done", true},
@@ -76,7 +76,7 @@ int main() {
    void Callback1(int sourceLineNumber, const char sourceLine[]);
    void Callback2(int sourceLineNumber, const char sourceLine[]);
    void GetNextToken(TOKEN tokens[]);
-   void ParseSPLProgram(TOKEN tokens[]);
+   void ParseWhyProgram(TOKEN tokens[]);
 
    char sourceFileName[80 + 1];
    TOKEN tokens[LOOKAHEAD + 1];
@@ -100,7 +100,7 @@ int main() {
       level = 0;
 #endif
 
-      ParseSPLProgram(tokens);
+      ParseWhyProgram(tokens);
    }
    catch (WHY_EXCEPTION e)
    {
@@ -118,7 +118,7 @@ void EnterModule(const char module[]) {
    char information[SOURCELINELENGTH + 1];
 
    level++;
-   sprintf(information, "   %*s>%s", level * 2, " ", module);
+   sprintf(information, "   %*s !!! <%s", level * 2, " ", module);
    lister.ListInformationLine(information);
 #endif
 }
@@ -127,7 +127,7 @@ void ExitModule(const char module[]) {
 #ifdef TRACEPARSER
    char information[SOURCELINELENGTH + 1];
 
-   sprintf(information, "   %*s<%s", level * 2, " ", module);
+   sprintf(information, "   %*s !!! >%s", level * 2, " ", module);
    lister.ListInformationLine(information);
    level--;
 #endif
@@ -143,11 +143,11 @@ void ProcessCompilerError(int sourceLineNumber, int sourceLineIndex, const char 
    throw(WHY_EXCEPTION("Compiler ending with compiler error!"));
 }
 
-void ParseSPLProgram(TOKEN tokens[]) {
+void ParseWhyProgram(TOKEN tokens[]) {
    void GetNextToken(TOKEN tokens[]);
    void ParsestartDefinition(TOKEN tokens[]);
 
-   EnterModule("SPLProgram");
+   EnterModule("whyProgram");
 
    if (tokens[0].type == start)
       ParsestartDefinition(tokens);
@@ -159,7 +159,7 @@ void ParseSPLProgram(TOKEN tokens[]) {
       ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex,
                            "Expecting end-of-program");
 
-   ExitModule("SPLProgram");
+   ExitModule("whyProgram");
 }
 
 void ParsestartDefinition(TOKEN tokens[]) {
