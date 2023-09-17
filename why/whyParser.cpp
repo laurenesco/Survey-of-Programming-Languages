@@ -145,24 +145,24 @@ void ProcessCompilerError(int sourceLineNumber, int sourceLineIndex, const char 
 
 void ParseWhyProgram(TOKEN tokens[]) {
    void GetNextToken(TOKEN tokens[]);
-   void ParsestartDefinition(TOKEN tokens[]);
+   void ParseStartDefinition(TOKEN tokens[]);
 
    EnterModule("whyProgram");
 
    if (tokens[0].type == start)
-      ParsestartDefinition(tokens);
+      ParseStartDefinition(tokens);
    else
       ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex,
                            "Expecting start");
 
-   if (tokens[0].type != stop)
+   if (tokens[0].type != done)
       ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex,
                            "Expecting end-of-program");
 
    ExitModule("whyProgram");
 }
 
-void ParsestartDefinition(TOKEN tokens[]) {
+void ParseStartDefinition(TOKEN tokens[]) {
    void GetNextToken(TOKEN tokens[]);
    void ParseStatement(TOKEN tokens[]);
 
@@ -170,7 +170,7 @@ void ParsestartDefinition(TOKEN tokens[]) {
 
    GetNextToken(tokens);
 
-   while (tokens[0].type != stop)
+   while (tokens[0].type != done)
       ParseStatement(tokens);
 
    GetNextToken(tokens);
@@ -180,14 +180,14 @@ void ParsestartDefinition(TOKEN tokens[]) {
 
 void ParseStatement(TOKEN tokens[]) {
    void GetNextToken(TOKEN tokens[]);
-   void ParsesayStatement(TOKEN tokens[]);
+   void ParseSayStatement(TOKEN tokens[]);
 
    EnterModule("Statement");
 
    switch (tokens[0].type)
    {
    case say:
-      ParsesayStatement(tokens);
+      ParseSayStatement(tokens);
       break;
    default:
       ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex,
@@ -198,7 +198,7 @@ void ParseStatement(TOKEN tokens[]) {
    ExitModule("Statement");
 }
 
-void ParsesayStatement(TOKEN tokens[]) {
+void ParseSayStatement(TOKEN tokens[]) {
    void GetNextToken(TOKEN tokens[]);
 
    EnterModule("sayStatement");
@@ -395,7 +395,7 @@ void GetNextToken(TOKEN tokens[]) {
                                  "Unexpected end-of-program");
          else
          {
-            type = stop;
+            type = done;
             reader.GetNextCharacter();
             lexeme[0] = '\0';
          }
