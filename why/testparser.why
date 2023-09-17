@@ -1,0 +1,13 @@
+!
+! Program Name:			testparser.why
+! Date Last Modified:	09/16/2023
+! Last Modified By:		Lauren Escobedo
+!
+! Program Description:	Program to test whyParser.why
+!
+
+start
+   say -Howdy-=
+   say -,-?- -?-world-?-!-=
+   say newl=
+done
