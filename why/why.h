@@ -18,6 +18,7 @@ const int LINESPERPAGE            =  60;
 const int MAXIMUMLENGTHIDENTIFIER =  64;
 const int MAXIMUMIDENTIFIERS      = 500;
 
+
 enum DATATYPE
 { 
    NOTYPE,
