@@ -1,7 +1,7 @@
 //-----------------------------------------------------------
 // Dr. Art Hanna & Lauren Escobedo
-// wju Parser
-// whyParser.cpp
+// why Compiler
+// whyCompiler.cpp
 //-----------------------------------------------------------
 #include <iostream>
 #include <iomanip>
@@ -16,10 +16,11 @@
 using namespace std;
 
 // #define TRACEREADER
-#define TRACESCANNER
-#define TRACEPARSER
+// #define TRACESCANNER
+// #define TRACEPARSER
+#define TRACECOMPILER
 
-#include "why.h"
+#include "SPL.h"
 
 typedef enum {
    // pseudo-terminals
@@ -67,6 +68,9 @@ struct TOKEN {
 // Global variables
 READER<CALLBACKSUSED> reader(SOURCELINELENGTH, LOOKAHEAD);
 LISTER lister(LINESPERPAGE);
+// CODEGENERATION
+CODE code;
+// ENDCODEGENERATION
 
 #ifdef TRACEPARSER
 int level;
@@ -87,6 +91,13 @@ int main() {
    try
    {
       lister.OpenFile(sourceFileName);
+
+		code.OpenFile(sourceFileName);
+
+// CODEGENERATION
+      code.EmitBeginningCode(sourceFileName);
+// ENDCODEGENERATION
+
       reader.SetLister(&lister);
       reader.AddCallbackFunction(Callback1);
       reader.AddCallbackFunction(Callback2);
@@ -101,6 +112,11 @@ int main() {
 #endif
 
       ParseWhyProgram(tokens);
+
+// CODEGENERATION
+      code.EmitEndingCode();
+// ENDCODEGENERATION
+
    }
    catch (WHY_EXCEPTION e)
    {
@@ -168,10 +184,44 @@ void ParseStartDefinition(TOKEN tokens[]) {
 
    EnterModule("startDefinition");
 
+// CODEGENERATION
+   code.EmitUnformattedLine("; **** =========");
+   sprintf(line,"; **** PROGRAM module (%4d)",tokens[0].sourceLineNumber);
+   code.EmitUnformattedLine(line);
+   code.EmitUnformattedLine("; **** =========");
+   code.EmitFormattedLine("PROGRAMMAIN","EQU"  ,"*");
+
+   code.EmitFormattedLine("","PUSH" ,"#RUNTIMESTACK","set SP");
+   code.EmitFormattedLine("","POPSP");
+   code.EmitFormattedLine("","PUSHA","STATICDATA","set SB");
+   code.EmitFormattedLine("","POPSB");
+   code.EmitFormattedLine("","PUSH","#HEAPBASE","initialize heap");
+   code.EmitFormattedLine("","PUSH","#HEAPSIZE");
+   code.EmitFormattedLine("","SVC","#SVC_INITIALIZE_HEAP");
+   sprintf(label,"PROGRAMBODY%04d",code.LabelSuffix());
+   code.EmitFormattedLine("","CALL",label);
+   code.AddDSToStaticData("Normal program termination","",reference);
+   code.EmitFormattedLine("","PUSHA",reference);
+   code.EmitFormattedLine("","SVC","#SVC_WRITE_STRING");
+   code.EmitFormattedLine("","SVC","#SVC_WRITE_ENDL");
+   code.EmitFormattedLine("","PUSH","#0D0","terminate with status = 0");
+   code.EmitFormattedLine("","SVC" ,"#SVC_TERMINATE");
+   code.EmitUnformattedLine("");
+   code.EmitFormattedLine(label,"EQU","*");
+// ENDCODEGENERATION
+
    GetNextToken(tokens);
 
    while (tokens[0].type != done)
       ParseStatement(tokens);
+
+// CODEGENERATION
+   code.EmitFormattedLine("","RETURN");
+   code.EmitUnformattedLine("; **** =========");
+   sprintf(line,"; **** END (%4d)",tokens[0].sourceLineNumber);
+   code.EmitUnformattedLine(line);
+   code.EmitUnformattedLine("; **** =========");
+// ENDCODEGENERATION
 
    GetNextToken(tokens);
 
@@ -203,6 +253,11 @@ void ParseSayStatement(TOKEN tokens[]) {
 
    EnterModule("sayStatement");
 
+// CODEGENERATION
+   sprintf(line,"; **** PRINT statement (%4d)",tokens[0].sourceLineNumber);
+   code.EmitUnformattedLine(line);
+// ENDCODEGENERATION
+
    do
    {
       GetNextToken(tokens);
@@ -210,9 +265,23 @@ void ParseSayStatement(TOKEN tokens[]) {
       switch (tokens[0].type)
       {
       case words:
+
+// CODEGENERATION
+            char reference[SOURCELINELENGTH+1];
+
+            code.AddDSToStaticData(tokens[0].lexeme,"",reference);
+            code.EmitFormattedLine("","PUSHA",reference);
+            code.EmitFormattedLine("","SVC","#SVC_WRITE_STRING");
+// ENDCODEGENERATION
+
          GetNextToken(tokens);
          break;
       case newl:
+
+// CODEGENERATION
+            code.EmitFormattedLine("","SVC","#SVC_WRITE_ENDL");
+// ENDCODEGENERATION
+
          GetNextToken(tokens);
          break;
       default:
@@ -236,6 +305,11 @@ void Callback1(int sourceLineNumber, const char sourceLine[]) {
 
 void Callback2(int sourceLineNumber, const char sourceLine[]) {
    cout << sourceLine << endl;
+
+// CODEGENERATION
+   sprintf(line,"; %4d %s",sourceLineNumber,sourceLine);
+   code.EmitUnformattedLine(line);
+// ENDCODEGENERATION
 }
 
 void GetNextToken(TOKEN tokens[]) {
