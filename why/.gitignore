@@ -1,3 +1,5 @@
 # Ignore list files
 *.list
 *.swp
+*.stm
+*.exe

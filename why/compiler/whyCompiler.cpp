@@ -20,7 +20,7 @@ using namespace std;
 // #define TRACEPARSER
 #define TRACECOMPILER
 
-#include "SPL.h"
+#include "why.h"
 
 typedef enum {
    // pseudo-terminals
@@ -182,6 +182,10 @@ void ParseStartDefinition(TOKEN tokens[]) {
    void GetNextToken(TOKEN tokens[]);
    void ParseStatement(TOKEN tokens[]);
 
+   char line[SOURCELINELENGTH+1];
+   char label[SOURCELINELENGTH+1];
+   char reference[SOURCELINELENGTH+1];
+
    EnterModule("startDefinition");
 
 // CODEGENERATION
@@ -251,6 +255,8 @@ void ParseStatement(TOKEN tokens[]) {
 void ParseSayStatement(TOKEN tokens[]) {
    void GetNextToken(TOKEN tokens[]);
 
+	char line[SOURCELINELENGTH+1];
+
    EnterModule("sayStatement");
 
 // CODEGENERATION
@@ -305,6 +311,8 @@ void Callback1(int sourceLineNumber, const char sourceLine[]) {
 
 void Callback2(int sourceLineNumber, const char sourceLine[]) {
    cout << sourceLine << endl;
+
+	char line[SOURCELINELENGTH+1];
 
 // CODEGENERATION
    sprintf(line,"; %4d %s",sourceLineNumber,sourceLine);
