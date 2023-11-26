@@ -123,7 +123,7 @@ int main() {
    void Callback1(int sourceLineNumber, const char sourceLine[]);
    void Callback2(int sourceLineNumber, const char sourceLine[]);
    void GetNextToken(TOKEN tokens[]);
-   void ParseWhyProgram(TOKEN tokens[]);
+   void arseWhyProgram(TOKEN tokens[]);
 
    char sourceFileName[80 + 1];
    TOKEN tokens[LOOKAHEAD + 1];
@@ -258,8 +258,8 @@ void ParseStartDefinition(TOKEN tokens[]) {
 }
 
 void ParseStatement(TOKEN tokens[]) {
+	void ParseSayStatement(TOKEN tokens[]);
    void GetNextToken(TOKEN tokens[]);
-   void ParseSayStatement(TOKEN tokens[]);
 
    EnterModule("Statement");
 
@@ -278,9 +278,11 @@ void ParseStatement(TOKEN tokens[]) {
 }
 
 void ParseSayStatement(TOKEN tokens[]) {
+	void ParseExpression(TOKEN tokens[], DATATYPE &datatype);
    void GetNextToken(TOKEN tokens[]);
 
 	char line[SOURCELINELENGTH+1];
+	DATATYPE datatype;
 
    EnterModule("sayStatement");
 
@@ -316,8 +318,18 @@ void ParseSayStatement(TOKEN tokens[]) {
          GetNextToken(tokens);
          break;
       default:
-         ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex,
-                              "Expecting words or newl");
+			ParseExpression(tokens, datatype);
+
+// CODEGENERATION
+			switch (datatype) {
+				case numeric:
+					code.EmitFormattedLine("","SVC","#SVC_WRITE_INTEGER");
+					break;
+				case boolean:
+					code.EmitFormattedLine("","SVC","#SVC_WRITE_BOOLEAN");
+               break;
+			}
+// ENDCODEGENERATION
       }
    } while (tokens[0].type == divider);
 
@@ -364,11 +376,11 @@ void GetNextToken(TOKEN tokens[]) {
    // "Eat" white space and comments
    do
    {
-      //    "Eat" any white-space (blanks and EOLCs and TABCs)
+      // "Eat" any white-space (blanks and EOLCs and TABCs)
       while ((nextCharacter == ' ') || (nextCharacter == READER<CALLBACKSUSED>::EOLC) || (nextCharacter == READER<CALLBACKSUSED>::TABC))
          nextCharacter = reader.GetNextCharacter().character;
 
-      //    "Eat" line comment
+      // "Eat" line comment
       if (nextCharacter == '!')
       {
 
@@ -429,7 +441,11 @@ void GetNextToken(TOKEN tokens[]) {
                                  reader.GetLookAheadCharacter(0).sourceLineIndex,
                                  "Unexpected end-of-program");
       }
-   } while ((nextCharacter == ' ') || (nextCharacter == READER<CALLBACKSUSED>::EOLC) || (nextCharacter == READER<CALLBACKSUSED>::TABC) || (nextCharacter == '!') || ((nextCharacter == '-') && (reader.GetLookAheadCharacter(1).character == '=')));
+   } while ((nextCharacter == ' ')
+				|| (nextCharacter == READER<CALLBACKSUSED>::EOLC)
+				|| (nextCharacter == READER<CALLBACKSUSED>::TABC)
+				|| (nextCharacter == '!')
+				|| ((nextCharacter == '-') && (reader.GetLookAheadCharacter(1).character == '=')));
 
    // Scan token
    sourceLineNumber = reader.GetLookAheadCharacter(0).sourceLineNumber;
@@ -462,13 +478,24 @@ void GetNextToken(TOKEN tokens[]) {
          type = TOKENDICT[i].type;
       else
          type = identifier;
-   }
-   else
-   {
+   } else if {
+		// <integer>
+		i = 0;
+		lexeme[i++] = nextCharacter;
+		nextCharacter = reader.GetNextCharacter().character;
+
+		while ( isdigit(nextCharacter) ) {
+			lexeme[i++] = nextCharacter;
+		  	nextCharacter = reader.GetNextCharacter().character;
+		}
+
+		lexeme[i] = '\0';
+		type = number;
+	} else {
       switch (nextCharacter)
       {
          // <string>
-      case '-':
+      case '-': // print
          i = 0;
          nextCharacter = reader.GetNextCharacter().character;
          while ((nextCharacter != '-') && (nextCharacter != READER<CALLBACKSUSED>::EOLC))
@@ -508,19 +535,103 @@ void GetNextToken(TOKEN tokens[]) {
          }
       }
       break;
-      case '?':
+      case '?': // comma
          type = divider;
          lexeme[0] = nextCharacter;
          lexeme[1] = '\0';
          reader.GetNextCharacter();
          break;
-      case '=':
+      case '=': // period
          type = endline;
          lexeme[0] = nextCharacter;
          lexeme[1] = '\0';
          reader.GetNextCharacter();
          break;
-      default:
+		case '[': // (
+			type = oparen;
+			lexeme[0] = nextCharacter;
+			lexeme[1] = '\0';
+			reader.GetNextCharacter();
+			break;
+      case ']': // )
+         type = cloparen;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '<': // lt, le
+			lexeme [0] = nextCharacter;
+			nextCharacter = reader.GetNextCharacter().character;
+			if (nextCharacter == '=') {
+				type = le;
+				lexeme[1] = nextCharacter;
+				lexeme[2] = '\0';
+				reader.GetNextCharacter();
+			} else {
+				type = lt;
+				lexeme[1] = '\0';
+			}
+      case '>': // gt, ge
+         lexeme [0] = nextCharacter;
+         nextCharacter = reader.GetNextCharacter().character;
+         if (nextCharacter == '=') {
+            type = ge;
+            lexeme[1] = nextCharacter;
+            lexeme[2] = '\0';
+            reader.GetNextCharacter();
+         } else {
+            type = gt;
+            lexeme[1] = '\0';
+         }
+      case '=': // ==
+         type = eq;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '~': // !=
+         type = ne;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '-': // +
+         type = add;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '+': // -
+         type = sub;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '/': // *
+         type = mul;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '*': // /
+         type = div;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '#': // %
+         type = mod;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      case '^': // pow
+         type = pow;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
+      default: // unktoken
          type = unknown;
          lexeme[0] = nextCharacter;
          lexeme[1] = '\0';
