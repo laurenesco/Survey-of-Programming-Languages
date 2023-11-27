@@ -22,90 +22,92 @@ using namespace std;
 
 #include "why.h"
 
-typedef enum {
+typedef enum
+{
    // pseudo-terminals
    identifier,
-	number,
+   number,
    words,
    stop,
    unknown,
    // reserved words
-   start,	// program
-   done,		// end
+   start, // program
+   done,  // end
    say,
    newl,
-	substitute,
-	notor,
-	ecxor,
-	both,
-	nand,
-	nat,
-	absval,
-	yes,
-	no,
+   substitute,
+   notor,
+   ecxor,
+   both,
+   nand,
+   nat,
+   absval,
+   yes,
+   no,
    // punctuation
    divider,
    endline,
-	oparen,
-	cloparen,
+   oparen,
+   cloparen,
    // operators
-	lt,
-	le,
-	eq,
-	gt,
-	ge,
-	ne,
-	add,
-	sub,
-	mul,
-	divis,
-	mod,
-	pow
+   lt,
+   le,
+   eq,
+   gt,
+   ge,
+   ne,
+   add,
+   sub,
+   mul,
+   divis,
+   mod,
+   pow
 } TOKENTYPE;
 
-struct TOKENTABLERECORD {
+struct TOKENTABLERECORD
+{
    TOKENTYPE type;
    char description[12 + 1];
    bool isReservedWord;
 };
 
 const TOKENTABLERECORD TOKENDICT[] = {
-			{identifier, "identifier", false},
-			{number, "number", false},
-        	{words, "words", false},
-        	{stop, "stop", true},
-        	{unknown, "unknown", false},
-        	{start, "start", true},
-        	{done, "done", true},
-        	{say, "say", true},
-        	{newl, "newl", true},
-			{substitute, "substitute", true},
-			{notor, "notor", true},
-			{ecxor, "ecxor", true},
-			{both, "both", true},
-			{nand, "nand", true},
-			{nat, "nat", true},
-			{absval, "absval", true},
-			{yes, "yes", true},
-			{no, "no", true},
-        	{divider, "divider", false},
-        	{endline, "endline", false},
-			{oparen, "oparen", false},
-			{cloparen, "cloparen", false},
-			{lt, "lt", false},
-			{le, "le", false},
-			{eq, "eq", false},
-			{gt, "gt", false},
-			{ge, "ge", false},
-			{add, "add", false},
-			{sub, "sub", false},
-			{mul, "mul", false},
-			{divis, "divis", false},
-			{mod, "mod", false},
-			{pow, "pow", false}
-};
+    {identifier, "identifier", false},
+    {number, "number", false},
+    {words, "words", false},
+    {stop, "stop", true},
+    {unknown, "unknown", false},
+    {start, "start", true},
+    {done, "done", true},
+    {say, "say", true},
+    {newl, "newl", true},
+    {substitute, "substitute", true},
+    {notor, "notor", true},
+    {ecxor, "ecxor", true},
+    {both, "both", true},
+    {nand, "nand", true},
+    {nat, "nat", true},
+    {absval, "absval", true},
+    {yes, "yes", true},
+    {no, "no", true},
+    {divider, "divider", false},
+    {endline, "endline", false},
+    {oparen, "oparen", false},
+    {cloparen, "cloparen", false},
+    {lt, "lt", false},
+    {le, "le", false},
+    {eq, "eq", false},
+    {gt, "gt", false},
+    {ge, "ge", false},
+    {add, "add", false},
+    {sub, "sub", false},
+    {mul, "mul", false},
+    {divis, "divis", false},
+    {mod, "mod", false},
+    {pow, "pow", false}};
 
-struct TOKEN {
+struct TOKEN
+{
    TOKENTYPE type;
    char lexeme[SOURCELINELENGTH + 1];
    int sourceLineNumber;
@@ -119,8 +121,8 @@ LISTER lister(LINESPERPAGE);
 CODE code;
 // ENDCODEGENERATION
 
-
-int main() {
+int main()
+{
    void Callback1(int sourceLineNumber, const char sourceLine[]);
    void Callback2(int sourceLineNumber, const char sourceLine[]);
    void GetNextToken(TOKEN tokens[]);
@@ -136,11 +138,11 @@ int main() {
    {
       lister.OpenFile(sourceFileName);
 
-		code.OpenFile(sourceFileName);
+      code.OpenFile(sourceFileName);
 
-// CODEGENERATION
+      // CODEGENERATION
       code.EmitBeginningCode(sourceFileName);
-// ENDCODEGENERATION
+      // ENDCODEGENERATION
 
       reader.SetLister(&lister);
       reader.AddCallbackFunction(Callback1);
@@ -153,10 +155,9 @@ int main() {
 
       ParseWhyProgram(tokens);
 
-// CODEGENERATION
+      // CODEGENERATION
       code.EmitEndingCode();
-// ENDCODEGENERATION
-
+      // ENDCODEGENERATION
    }
    catch (WHY_EXCEPTION e)
    {
@@ -169,13 +170,16 @@ int main() {
    return (0);
 }
 
-void EnterModule(const char module[]) {
+void EnterModule(const char module[])
+{
 }
 
-void ExitModule(const char module[]) {
+void ExitModule(const char module[])
+{
 }
 
-void ProcessCompilerError(int sourceLineNumber, int sourceLineIndex, const char errorMessage[]) {
+void ProcessCompilerError(int sourceLineNumber, int sourceLineIndex, const char errorMessage[])
+{
    char information[SOURCELINELENGTH + 1];
 
    // Use "panic mode" error recovery technique: report error message and terminate compilation!
@@ -185,7 +189,8 @@ void ProcessCompilerError(int sourceLineNumber, int sourceLineIndex, const char 
    throw(WHY_EXCEPTION("Compiler ending with compiler error!"));
 }
 
-void ParseWhyProgram(TOKEN tokens[]) {
+void ParseWhyProgram(TOKEN tokens[])
+{
    void GetNextToken(TOKEN tokens[]);
    void ParseStartDefinition(TOKEN tokens[]);
 
@@ -204,62 +209,64 @@ void ParseWhyProgram(TOKEN tokens[]) {
    ExitModule("whyProgram");
 }
 
-void ParseStartDefinition(TOKEN tokens[]) {
+void ParseStartDefinition(TOKEN tokens[])
+{
    void GetNextToken(TOKEN tokens[]);
    void ParseStatement(TOKEN tokens[]);
 
-   char line[SOURCELINELENGTH+1];
-   char label[SOURCELINELENGTH+1];
-   char reference[SOURCELINELENGTH+1];
+   char line[SOURCELINELENGTH + 1];
+   char label[SOURCELINELENGTH + 1];
+   char reference[SOURCELINELENGTH + 1];
 
    EnterModule("startDefinition");
 
-// CODEGENERATION
+   // CODEGENERATION
    code.EmitUnformattedLine("; **** =========");
-   sprintf(line,"; **** PROGRAM module (%4d)",tokens[0].sourceLineNumber);
+   sprintf(line, "; **** PROGRAM module (%4d)", tokens[0].sourceLineNumber);
    code.EmitUnformattedLine(line);
    code.EmitUnformattedLine("; **** =========");
-   code.EmitFormattedLine("PROGRAMMAIN","EQU"  ,"*");
+   code.EmitFormattedLine("PROGRAMMAIN", "EQU", "*");
 
-   code.EmitFormattedLine("","PUSH" ,"#RUNTIMESTACK","set SP");
-   code.EmitFormattedLine("","POPSP");
-   code.EmitFormattedLine("","PUSHA","STATICDATA","set SB");
-   code.EmitFormattedLine("","POPSB");
-   code.EmitFormattedLine("","PUSH","#HEAPBASE","initialize heap");
-   code.EmitFormattedLine("","PUSH","#HEAPSIZE");
-   code.EmitFormattedLine("","SVC","#SVC_INITIALIZE_HEAP");
-   sprintf(label,"PROGRAMBODY%04d",code.LabelSuffix());
-   code.EmitFormattedLine("","CALL",label);
-   code.AddDSToStaticData("Normal program termination","",reference);
-   code.EmitFormattedLine("","PUSHA",reference);
-   code.EmitFormattedLine("","SVC","#SVC_WRITE_STRING");
-   code.EmitFormattedLine("","SVC","#SVC_WRITE_ENDL");
-   code.EmitFormattedLine("","PUSH","#0D0","terminate with status = 0");
-   code.EmitFormattedLine("","SVC" ,"#SVC_TERMINATE");
+   code.EmitFormattedLine("", "PUSH", "#RUNTIMESTACK", "set SP");
+   code.EmitFormattedLine("", "POPSP");
+   code.EmitFormattedLine("", "PUSHA", "STATICDATA", "set SB");
+   code.EmitFormattedLine("", "POPSB");
+   code.EmitFormattedLine("", "PUSH", "#HEAPBASE", "initialize heap");
+   code.EmitFormattedLine("", "PUSH", "#HEAPSIZE");
+   code.EmitFormattedLine("", "SVC", "#SVC_INITIALIZE_HEAP");
+   sprintf(label, "PROGRAMBODY%04d", code.LabelSuffix());
+   code.EmitFormattedLine("", "CALL", label);
+   code.AddDSToStaticData("Normal program termination", "", reference);
+   code.EmitFormattedLine("", "PUSHA", reference);
+   code.EmitFormattedLine("", "SVC", "#SVC_WRITE_STRING");
+   code.EmitFormattedLine("", "SVC", "#SVC_WRITE_ENDL");
+   code.EmitFormattedLine("", "PUSH", "#0D0", "terminate with status = 0");
+   code.EmitFormattedLine("", "SVC", "#SVC_TERMINATE");
    code.EmitUnformattedLine("");
-   code.EmitFormattedLine(label,"EQU","*");
-// ENDCODEGENERATION
+   code.EmitFormattedLine(label, "EQU", "*");
+   // ENDCODEGENERATION
 
    GetNextToken(tokens);
 
    while (tokens[0].type != done)
       ParseStatement(tokens);
 
-// CODEGENERATION
-   code.EmitFormattedLine("","RETURN");
+   // CODEGENERATION
+   code.EmitFormattedLine("", "RETURN");
    code.EmitUnformattedLine("; **** =========");
-   sprintf(line,"; **** END (%4d)",tokens[0].sourceLineNumber);
+   sprintf(line, "; **** END (%4d)", tokens[0].sourceLineNumber);
    code.EmitUnformattedLine(line);
    code.EmitUnformattedLine("; **** =========");
-// ENDCODEGENERATION
+   // ENDCODEGENERATION
 
    GetNextToken(tokens);
 
    ExitModule("startDefinition");
 }
 
-void ParseStatement(TOKEN tokens[]) {
-	void ParseSayStatement(TOKEN tokens[]);
+void ParseStatement(TOKEN tokens[])
+{
+   void ParseSayStatement(TOKEN tokens[]);
    void GetNextToken(TOKEN tokens[]);
 
    EnterModule("Statement");
@@ -278,19 +285,20 @@ void ParseStatement(TOKEN tokens[]) {
    ExitModule("Statement");
 }
 
-void ParseSayStatement(TOKEN tokens[]) {
-	void ParseExpression(TOKEN tokens[], DATATYPE &datatype);
+void ParseSayStatement(TOKEN tokens[])
+{
+   void ParseExpression(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
-	char line[SOURCELINELENGTH+1];
-	DATATYPE datatype;
+   char line[SOURCELINELENGTH + 1];
+   DATATYPE datatype;
 
    EnterModule("sayStatement");
 
-// CODEGENERATION
-   sprintf(line,"; **** PRINT statement (%4d)",tokens[0].sourceLineNumber);
+   // CODEGENERATION
+   sprintf(line, "; **** PRINT statement (%4d)", tokens[0].sourceLineNumber);
    code.EmitUnformattedLine(line);
-// ENDCODEGENERATION
+   // ENDCODEGENERATION
 
    do
    {
@@ -300,37 +308,38 @@ void ParseSayStatement(TOKEN tokens[]) {
       {
       case words:
 
-// CODEGENERATION
-            char reference[SOURCELINELENGTH+1];
+         // CODEGENERATION
+         char reference[SOURCELINELENGTH + 1];
 
-            code.AddDSToStaticData(tokens[0].lexeme,"",reference);
-            code.EmitFormattedLine("","PUSHA",reference);
-            code.EmitFormattedLine("","SVC","#SVC_WRITE_STRING");
-// ENDCODEGENERATION
+         code.AddDSToStaticData(tokens[0].lexeme, "", reference);
+         code.EmitFormattedLine("", "PUSHA", reference);
+         code.EmitFormattedLine("", "SVC", "#SVC_WRITE_STRING");
+         // ENDCODEGENERATION
 
          GetNextToken(tokens);
          break;
       case newl:
 
-// CODEGENERATION
-            code.EmitFormattedLine("","SVC","#SVC_WRITE_ENDL");
-// ENDCODEGENERATION
+         // CODEGENERATION
+         code.EmitFormattedLine("", "SVC", "#SVC_WRITE_ENDL");
+         // ENDCODEGENERATION
 
          GetNextToken(tokens);
          break;
       default:
-			ParseExpression(tokens, datatype);
+         ParseExpression(tokens, datatype);
 
-// CODEGENERATION
-			switch (datatype) {
-				case numeric:
-					code.EmitFormattedLine("","SVC","#SVC_WRITE_INTEGER");
-					break;
-				case boolean:
-					code.EmitFormattedLine("","SVC","#SVC_WRITE_BOOLEAN");
-               break;
-			}
-// ENDCODEGENERATION
+         // CODEGENERATION
+         switch (datatype)
+         {
+         case numeric:
+            code.EmitFormattedLine("", "SVC", "#SVC_WRITE_INTEGER");
+            break;
+         case boolean:
+            code.EmitFormattedLine("", "SVC", "#SVC_WRITE_BOOLEAN");
+            break;
+         }
+         // ENDCODEGENERATION
       }
    } while (tokens[0].type == divider);
 
@@ -343,65 +352,65 @@ void ParseSayStatement(TOKEN tokens[]) {
    ExitModule("sayStatement");
 }
 
-void ParseExpression(TOKEN tokens[], DATATYPE &datatype) {
-   void ParseConjunction(TOKEN tokens[],DATATYPE &datatype);
+void ParseExpression(TOKEN tokens[], DATATYPE &datatype)
+{
+   void ParseConjunction(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
-   DATATYPE datatypeLHS,datatypeRHS;
+   DATATYPE datatypeLHS, datatypeRHS;
 
    EnterModule("Expression");
 
-   ParseConjunction(tokens,datatypeLHS);
+   ParseConjunction(tokens, datatypeLHS);
 
-   if ( (tokens[0].type ==  substitute) ||
-        (tokens[0].type == notor) ||
-        (tokens[0].type == ecxor) )
+   if ((tokens[0].type == substitute) ||
+       (tokens[0].type == notor) ||
+       (tokens[0].type == ecxor))
    {
-      while ( (tokens[0].type ==  substitute) ||
-              (tokens[0].type == notor) ||
-              (tokens[0].type == ecxor) )
+      while ((tokens[0].type == substitute) ||
+             (tokens[0].type == notor) ||
+             (tokens[0].type == ecxor))
       {
          TOKENTYPE operation = tokens[0].type;
 
          GetNextToken(tokens);
-         ParseConjunction(tokens,datatypeRHS);
-// CODEGENERATION
-         switch ( operation )
+         ParseConjunction(tokens, datatypeRHS);
+         // CODEGENERATION
+         switch (operation)
          {
-            case substitute:
+         case substitute:
 
-// STATICSEMANTICS
-               if ( !((datatypeLHS == boolean) && (datatypeRHS == boolean)) )
-                  ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting boolean operands");
-// ENDSTATICSEMANTICS
+            // STATICSEMANTICS
+            if (!((datatypeLHS == boolean) && (datatypeRHS == boolean)))
+               ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting boolean operands");
+            // ENDSTATICSEMANTICS
 
-               code.EmitFormattedLine("","or");
-               datatype = boolean;
-               break;
-            case notor:
+            code.EmitFormattedLine("", "or");
+            datatype = boolean;
+            break;
+         case notor:
 
-// STATICSEMANTICS
-               if ( !((datatypeLHS == boolean) && (datatypeRHS == boolean)) )
-                  ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting boolean operands");
-// ENDSTATICSEMANTICS
+            // STATICSEMANTICS
+            if (!((datatypeLHS == boolean) && (datatypeRHS == boolean)))
+               ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting boolean operands");
+            // ENDSTATICSEMANTICS
 
-               code.EmitFormattedLine("","nor");
-               datatype = boolean;
-               break;
-            case ecxor:
+            code.EmitFormattedLine("", "nor");
+            datatype = boolean;
+            break;
+         case ecxor:
 
-// STATICSEMANTICS
-               if ( !((datatypeLHS == boolean) && (datatypeRHS == boolean)) )
-                  ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting boolean operands");
-// ENDSTATICSEMANTICS
+            // STATICSEMANTICS
+            if (!((datatypeLHS == boolean) && (datatypeRHS == boolean)))
+               ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting boolean operands");
+            // ENDSTATICSEMANTICS
 
-               code.EmitFormattedLine("","xor");
-               datatype = boolean;
-               break;
+            code.EmitFormattedLine("", "xor");
+            datatype = boolean;
+            break;
          }
       }
-// CODEGENERATION
-
+      // CODEGENERATION
    }
    else
       datatype = datatypeLHS;
@@ -409,42 +418,42 @@ void ParseExpression(TOKEN tokens[], DATATYPE &datatype) {
    ExitModule("Expression");
 }
 
-void ParseConjunction(TOKEN tokens[],DATATYPE &datatype)
+void ParseConjunction(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParseNegation(TOKEN tokens[],DATATYPE &datatype);
+   void ParseNegation(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
-   DATATYPE datatypeLHS,datatypeRHS;
+   DATATYPE datatypeLHS, datatypeRHS;
 
    EnterModule("Conjunction");
 
-   ParseNegation(tokens,datatypeLHS);
+   ParseNegation(tokens, datatypeLHS);
 
-   if ( (tokens[0].type ==  both) ||
-        (tokens[0].type == nand) )
+   if ((tokens[0].type == both) ||
+       (tokens[0].type == nand))
    {
-      while ( (tokens[0].type ==  both) ||
-              (tokens[0].type == nand) )
+      while ((tokens[0].type == both) ||
+             (tokens[0].type == nand))
       {
          TOKENTYPE operation = tokens[0].type;
 
          GetNextToken(tokens);
-         ParseNegation(tokens,datatypeRHS);
+         ParseNegation(tokens, datatypeRHS);
 
-         switch ( operation )
+         switch (operation)
          {
-            case both:
-               if ( !((datatypeLHS == boolean) && (datatypeRHS == boolean)) )
-                  ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting boolean operands");
-               code.EmitFormattedLine("","and");
-               datatype = boolean;
-               break;
-            case nand:
-               if ( !((datatypeLHS == boolean) && (datatypeRHS == boolean)) )
-                  ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting boolean operands");
-               code.EmitFormattedLine("","nand");
-               datatype = boolean;
-               break;
+         case both:
+            if (!((datatypeLHS == boolean) && (datatypeRHS == boolean)))
+               ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting boolean operands");
+            code.EmitFormattedLine("", "and");
+            datatype = boolean;
+            break;
+         case nand:
+            if (!((datatypeLHS == boolean) && (datatypeRHS == boolean)))
+               ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting boolean operands");
+            code.EmitFormattedLine("", "nand");
+            datatype = boolean;
+            break;
          }
       }
    }
@@ -454,89 +463,88 @@ void ParseConjunction(TOKEN tokens[],DATATYPE &datatype)
    ExitModule("Conjunction");
 }
 
-void ParseNegation(TOKEN tokens[],DATATYPE &datatype)
+void ParseNegation(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParseComparison(TOKEN tokens[],DATATYPE &datatype);
+   void ParseComparison(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
    DATATYPE datatypeRHS;
 
    EnterModule("Negation");
 
-   if ( tokens[0].type == nat )
+   if (tokens[0].type == nat)
    {
       GetNextToken(tokens);
-      ParseComparison(tokens,datatypeRHS);
+      ParseComparison(tokens, datatypeRHS);
 
-      if ( !(datatypeRHS == boolean) )
-         ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting boolean operand");
-      code.EmitFormattedLine("","not");
+      if (!(datatypeRHS == boolean))
+         ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting boolean operand");
+      code.EmitFormattedLine("", "not");
       datatype = boolean;
    }
    else
-      ParseComparison(tokens,datatype);
+      ParseComparison(tokens, datatype);
 
    ExitModule("Negation");
 }
 
-void ParseComparison(TOKEN tokens[],DATATYPE &datatype)
+void ParseComparison(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParseComparator(TOKEN tokens[],DATATYPE &datatype);
+   void ParseComparator(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
-   DATATYPE datatypeLHS,datatypeRHS;
+   DATATYPE datatypeLHS, datatypeRHS;
 
    EnterModule("Comparison");
 
-   ParseComparator(tokens,datatypeLHS);
-   if ( (tokens[0].type == lt) ||
-        (tokens[0].type == le) ||
-        (tokens[0].type == eq) ||
-        (tokens[0].type == gt) ||
-        (tokens[0].type == ge) ||
-        (tokens[0].type == ne)
-      )
+   ParseComparator(tokens, datatypeLHS);
+   if ((tokens[0].type == lt) ||
+       (tokens[0].type == le) ||
+       (tokens[0].type == eq) ||
+       (tokens[0].type == gt) ||
+       (tokens[0].type == ge) ||
+       (tokens[0].type == ne))
    {
       TOKENTYPE operation = tokens[0].type;
 
       GetNextToken(tokens);
-      ParseComparator(tokens,datatypeRHS);
+      ParseComparator(tokens, datatypeRHS);
 
-      if ( (datatypeLHS != numeric) || (datatypeRHS != numeric) )
-         ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting integer operands");
+      if ((datatypeLHS != numeric) || (datatypeRHS != numeric))
+         ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting integer operands");
 
-      char Tlabel[SOURCELINELENGTH+1],Elabel[SOURCELINELENGTH+1];
+      char Tlabel[SOURCELINELENGTH + 1], Elabel[SOURCELINELENGTH + 1];
 
-      code.EmitFormattedLine("","CMPI");
-      sprintf(Tlabel,"T%04d",code.LabelSuffix());
-      sprintf(Elabel,"E%04d",code.LabelSuffix());
+      code.EmitFormattedLine("", "CMPI");
+      sprintf(Tlabel, "T%04d", code.LabelSuffix());
+      sprintf(Elabel, "E%04d", code.LabelSuffix());
 
-      switch ( operation )
+      switch (operation)
       {
-         case lt:
-            code.EmitFormattedLine("","JMPL",Tlabel);
-            break;
-         case le:
-            code.EmitFormattedLine("","JMPLE",Tlabel);
-            break;
-         case eq:
-            code.EmitFormattedLine("","JMPE",Tlabel);
-            break;
-         case gt:
-            code.EmitFormattedLine("","JMPG",Tlabel);
-            break;
-         case ge:
-            code.EmitFormattedLine("","JMPGE",Tlabel);
-            break;
-         case ne:
-            code.EmitFormattedLine("","JMPNE",Tlabel);
-            break;
+      case lt:
+         code.EmitFormattedLine("", "JMPL", Tlabel);
+         break;
+      case le:
+         code.EmitFormattedLine("", "JMPLE", Tlabel);
+         break;
+      case eq:
+         code.EmitFormattedLine("", "JMPE", Tlabel);
+         break;
+      case gt:
+         code.EmitFormattedLine("", "JMPG", Tlabel);
+         break;
+      case ge:
+         code.EmitFormattedLine("", "JMPGE", Tlabel);
+         break;
+      case ne:
+         code.EmitFormattedLine("", "JMPNE", Tlabel);
+         break;
       }
       datatype = boolean;
-      code.EmitFormattedLine("","PUSH","#0X0000");
-      code.EmitFormattedLine("","JMP",Elabel);
-      code.EmitFormattedLine(Tlabel,"PUSH","#0XFFFF");
-      code.EmitFormattedLine(Elabel,"EQU","*");
+      code.EmitFormattedLine("", "PUSH", "#0X0000");
+      code.EmitFormattedLine("", "JMP", Elabel);
+      code.EmitFormattedLine(Tlabel, "PUSH", "#0XFFFF");
+      code.EmitFormattedLine(Elabel, "EQU", "*");
    }
    else
       datatype = datatypeLHS;
@@ -544,39 +552,39 @@ void ParseComparison(TOKEN tokens[],DATATYPE &datatype)
    ExitModule("Comparison");
 }
 
-void ParseComparator(TOKEN tokens[],DATATYPE &datatype)
+void ParseComparator(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParseTerm(TOKEN tokens[],DATATYPE &datatype);
+   void ParseTerm(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
-   DATATYPE datatypeLHS,datatypeRHS;
+   DATATYPE datatypeLHS, datatypeRHS;
 
    EnterModule("Comparator");
 
-   ParseTerm(tokens,datatypeLHS);
+   ParseTerm(tokens, datatypeLHS);
 
-   if ( (tokens[0].type ==  add) ||
-        (tokens[0].type == sub) )
+   if ((tokens[0].type == add) ||
+       (tokens[0].type == sub))
    {
-      while ( (tokens[0].type == add) ||
-              (tokens[0].type == sub) )
+      while ((tokens[0].type == add) ||
+             (tokens[0].type == sub))
       {
          TOKENTYPE operation = tokens[0].type;
 
          GetNextToken(tokens);
-         ParseTerm(tokens,datatypeRHS);
+         ParseTerm(tokens, datatypeRHS);
 
-         if ( (datatypeLHS != numeric) || (datatypeRHS != numeric) )
-            ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting integer operands");
+         if ((datatypeLHS != numeric) || (datatypeRHS != numeric))
+            ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting integer operands");
 
-         switch ( operation )
+         switch (operation)
          {
-            case add:
-               code.EmitFormattedLine("","ADDI");
-               break;
-            case sub:
-               code.EmitFormattedLine("","SUBI");
-               break;
+         case add:
+            code.EmitFormattedLine("", "ADDI");
+            break;
+         case sub:
+            code.EmitFormattedLine("", "SUBI");
+            break;
          }
          datatype = numeric;
       }
@@ -587,43 +595,43 @@ void ParseComparator(TOKEN tokens[],DATATYPE &datatype)
    ExitModule("Comparator");
 }
 
-void ParseTerm(TOKEN tokens[],DATATYPE &datatype)
+void ParseTerm(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParseFactor(TOKEN tokens[],DATATYPE &datatype);
+   void ParseFactor(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
-   DATATYPE datatypeLHS,datatypeRHS;
+   DATATYPE datatypeLHS, datatypeRHS;
 
    EnterModule("Term");
 
-   ParseFactor(tokens,datatypeLHS);
-   if ( (tokens[0].type == mul) ||
-        (tokens[0].type == divis) ||
-        (tokens[0].type == mod) )
+   ParseFactor(tokens, datatypeLHS);
+   if ((tokens[0].type == mul) ||
+       (tokens[0].type == divis) ||
+       (tokens[0].type == mod))
    {
-      while ( (tokens[0].type == mul) ||
-              (tokens[0].type == divis) ||
-              (tokens[0].type == mod) )
+      while ((tokens[0].type == mul) ||
+             (tokens[0].type == divis) ||
+             (tokens[0].type == mod))
       {
          TOKENTYPE operation = tokens[0].type;
 
          GetNextToken(tokens);
-         ParseFactor(tokens,datatypeRHS);
+         ParseFactor(tokens, datatypeRHS);
 
-         if ( (datatypeLHS != numeric) || (datatypeRHS != numeric) )
-            ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting integer operands");
+         if ((datatypeLHS != numeric) || (datatypeRHS != numeric))
+            ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting integer operands");
 
-         switch ( operation )
+         switch (operation)
          {
-            case mul:
-               code.EmitFormattedLine("","MULI");
-               break;
-            case divis:
-               code.EmitFormattedLine("","DIVI");
-               break;
-            case mod:
-               code.EmitFormattedLine("","REMI");
-               break;
+         case mul:
+            code.EmitFormattedLine("", "MULI");
+            break;
+         case divis:
+            code.EmitFormattedLine("", "DIVI");
+            break;
+         case mod:
+            code.EmitFormattedLine("", "REMI");
+            break;
          }
          datatype = numeric;
       }
@@ -634,82 +642,81 @@ void ParseTerm(TOKEN tokens[],DATATYPE &datatype)
    ExitModule("Term");
 }
 
-void ParseFactor(TOKEN tokens[],DATATYPE &datatype)
+void ParseFactor(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParseSecondary(TOKEN tokens[],DATATYPE &datatype);
+   void ParseSecondary(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
    EnterModule("Factor");
 
-   if ( (tokens[0].type == absval) ||
-        (tokens[0].type == add) ||
-        (tokens[0].type == sub)
-      )
+   if ((tokens[0].type == absval) ||
+       (tokens[0].type == add) ||
+       (tokens[0].type == sub))
    {
       DATATYPE datatypeRHS;
       TOKENTYPE operation = tokens[0].type;
 
       GetNextToken(tokens);
-      ParseSecondary(tokens,datatypeRHS);
+      ParseSecondary(tokens, datatypeRHS);
 
-      if ( datatypeRHS != numeric)
-         ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting integer operand");
+      if (datatypeRHS != numeric)
+         ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting integer operand");
 
-      switch ( operation )
+      switch (operation)
       {
-         case absval:
-/*
-      SETNZPI
-      JMPNN     E????
-      NEGI                    ; NEGI or NEGF (as required)
-E???? EQU       *
-*/
-            {
-               char Elabel[SOURCELINELENGTH+1];
+      case absval:
+         /*
+               SETNZPI
+               JMPNN     E????
+               NEGI                    ; NEGI or NEGF (as required)
+         E???? EQU       *
+         */
+         {
+            char Elabel[SOURCELINELENGTH + 1];
 
-               sprintf(Elabel,"E%04d",code.LabelSuffix());
-               code.EmitFormattedLine("","SETNZPI");
-               code.EmitFormattedLine("","JMPNN",Elabel);
-               code.EmitFormattedLine("","NEGI");
-               code.EmitFormattedLine(Elabel,"EQU","*");
-            }
-            break;
-         case add:
+            sprintf(Elabel, "E%04d", code.LabelSuffix());
+            code.EmitFormattedLine("", "SETNZPI");
+            code.EmitFormattedLine("", "JMPNN", Elabel);
+            code.EmitFormattedLine("", "NEGI");
+            code.EmitFormattedLine(Elabel, "EQU", "*");
+         }
+         break;
+      case add:
          // Do nothing (identity operator)
-            break;
-         case sub:
-            code.EmitFormattedLine("","NEGI");
-            break;
+         break;
+      case sub:
+         code.EmitFormattedLine("", "NEGI");
+         break;
       }
       datatype = numeric;
    }
    else
-      ParseSecondary(tokens,datatype);
+      ParseSecondary(tokens, datatype);
 
    ExitModule("Factor");
 }
 
-void ParseSecondary(TOKEN tokens[],DATATYPE &datatype)
+void ParseSecondary(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParsePrimary(TOKEN tokens[],DATATYPE &datatype);
+   void ParsePrimary(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
-   DATATYPE datatypeLHS,datatypeRHS;
+   DATATYPE datatypeLHS, datatypeRHS;
 
    EnterModule("Secondary");
 
-   ParsePrimary(tokens,datatypeLHS);
+   ParsePrimary(tokens, datatypeLHS);
 
-   if ( tokens[0].type == pow )
+   if (tokens[0].type == pow)
    {
       GetNextToken(tokens);
 
-      ParsePrimary(tokens,datatypeRHS);
+      ParsePrimary(tokens, datatypeRHS);
 
-      if ( (datatypeLHS != numeric) || (datatypeRHS != numeric) )
-         ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting integer operands");
+      if ((datatypeLHS != numeric) || (datatypeRHS != numeric))
+         ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting integer operands");
 
-      code.EmitFormattedLine("","POWI");
+      code.EmitFormattedLine("", "POWI");
       datatype = numeric;
    }
    else
@@ -718,66 +725,69 @@ void ParseSecondary(TOKEN tokens[],DATATYPE &datatype)
    ExitModule("Secondary");
 }
 
-void ParsePrimary(TOKEN tokens[],DATATYPE &datatype)
+void ParsePrimary(TOKEN tokens[], DATATYPE &datatype)
 {
-   void ParseExpression(TOKEN tokens[],DATATYPE &datatype);
+   void ParseExpression(TOKEN tokens[], DATATYPE & datatype);
    void GetNextToken(TOKEN tokens[]);
 
    EnterModule("Primary");
 
-   switch ( tokens[0].type )
+   switch (tokens[0].type)
    {
-      case number:
-         {
-            char operand[SOURCELINELENGTH+1];
+   case number:
+   {
+      char operand[SOURCELINELENGTH + 1];
 
-            sprintf(operand,"#0D%s",tokens[0].lexeme);
-            code.EmitFormattedLine("","PUSH",operand);
-            datatype = numeric;
-            GetNextToken(tokens);
-         }
-         break;
-      case yes:
-         code.EmitFormattedLine("","PUSH","#0XFFFF");
-         datatype = boolean;
-         GetNextToken(tokens);
-         break;
-      case no:
-         code.EmitFormattedLine("","PUSH","#0X0000");
-         datatype = boolean;
-         GetNextToken(tokens);
-         break;
-      case oparen:
-         GetNextToken(tokens);
-         ParseExpression(tokens,datatype);
-         if ( tokens[0].type != cloparen )
-            ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting )");
-         GetNextToken(tokens);
-         break;
-      default:
-         ProcessCompilerError(tokens[0].sourceLineNumber,tokens[0].sourceLineIndex,"Expecting integer, true, false, or (");
-         break;
+      sprintf(operand, "#0D%s", tokens[0].lexeme);
+      code.EmitFormattedLine("", "PUSH", operand);
+      datatype = numeric;
+      GetNextToken(tokens);
+   }
+   break;
+   case yes:
+      code.EmitFormattedLine("", "PUSH", "#0XFFFF");
+      datatype = boolean;
+      GetNextToken(tokens);
+      break;
+   case no:
+      code.EmitFormattedLine("", "PUSH", "#0X0000");
+      datatype = boolean;
+      GetNextToken(tokens);
+      break;
+   case oparen:
+      GetNextToken(tokens);
+      ParseExpression(tokens, datatype);
+      if (tokens[0].type != cloparen)
+         ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting )");
+      GetNextToken(tokens);
+      break;
+   default:
+      ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex, "Expecting integer, true, false, or (");
+      break;
    }
 
    ExitModule("Primary");
 }
 
-void Callback1(int sourceLineNumber, const char sourceLine[]) {
+void Callback1(int sourceLineNumber, const char sourceLine[])
+{
    cout << setw(4) << sourceLineNumber << " ";
 }
 
-void Callback2(int sourceLineNumber, const char sourceLine[]) {
+void Callback2(int sourceLineNumber, const char sourceLine[])
+{
    cout << sourceLine << endl;
 
-	char line[SOURCELINELENGTH+1];
+   char line[SOURCELINELENGTH + 1];
 
-// CODEGENERATION
-   sprintf(line,"; %4d %s",sourceLineNumber,sourceLine);
+   // CODEGENERATION
+   sprintf(line, "; %4d %s", sourceLineNumber, sourceLine);
    code.EmitUnformattedLine(line);
-// ENDCODEGENERATION
+   // ENDCODEGENERATION
 }
 
-void GetNextToken(TOKEN tokens[]) {
+void GetNextToken(TOKEN tokens[])
+{
    const char *TokenDescription(TOKENTYPE type);
 
    int i;
@@ -861,11 +871,7 @@ void GetNextToken(TOKEN tokens[]) {
                                  reader.GetLookAheadCharacter(0).sourceLineIndex,
                                  "Unexpected end-of-program");
       }
-   } while ((nextCharacter == ' ')
-				|| (nextCharacter == READER<CALLBACKSUSED>::EOLC)
-				|| (nextCharacter == READER<CALLBACKSUSED>::TABC)
-				|| (nextCharacter == '!')
-				|| ((nextCharacter == '-') && (reader.GetLookAheadCharacter(1).character == '=')));
+   } while ((nextCharacter == ' ') || (nextCharacter == READER<CALLBACKSUSED>::EOLC) || (nextCharacter == READER<CALLBACKSUSED>::TABC) || (nextCharacter == '!') || ((nextCharacter == '-') && (reader.GetLookAheadCharacter(1).character == '=')));
 
    // Scan token
    sourceLineNumber = reader.GetLookAheadCharacter(0).sourceLineNumber;
@@ -898,20 +904,25 @@ void GetNextToken(TOKEN tokens[]) {
          type = TOKENDICT[i].type;
       else
          type = identifier;
-   } else if (isdigit(nextCharacter)) {
-		// <integer>
-		i = 0;
-		lexeme[i++] = nextCharacter;
-		nextCharacter = reader.GetNextCharacter().character;
+   }
+   else if (isdigit(nextCharacter))
+   {
+      // <integer>
+      i = 0;
+      lexeme[i++] = nextCharacter;
+      nextCharacter = reader.GetNextCharacter().character;
 
-		while ( isdigit(nextCharacter) ) {
-			lexeme[i++] = nextCharacter;
-		  	nextCharacter = reader.GetNextCharacter().character;
-		}
+      while (isdigit(nextCharacter))
+      {
+         lexeme[i++] = nextCharacter;
+         nextCharacter = reader.GetNextCharacter().character;
+      }
 
-		lexeme[i] = '\0';
-		type = number;
-	} else {
+      lexeme[i] = '\0';
+      type = number;
+   }
+   else
+   {
       switch (nextCharacter)
       {
          // <string>
@@ -967,12 +978,12 @@ void GetNextToken(TOKEN tokens[]) {
          lexeme[1] = '\0';
          reader.GetNextCharacter();
          break;
-		case '[': // (
-			type = oparen;
-			lexeme[0] = nextCharacter;
-			lexeme[1] = '\0';
-			reader.GetNextCharacter();
-			break;
+      case '[': // (
+         type = oparen;
+         lexeme[0] = nextCharacter;
+         lexeme[1] = '\0';
+         reader.GetNextCharacter();
+         break;
       case ']': // )
          type = cloparen;
          lexeme[0] = nextCharacter;
@@ -980,31 +991,37 @@ void GetNextToken(TOKEN tokens[]) {
          reader.GetNextCharacter();
          break;
       case '<': // lt, le
-			lexeme [0] = nextCharacter;
-			nextCharacter = reader.GetNextCharacter().character;
-			if (nextCharacter == '=') {
-				type = le;
-				lexeme[1] = nextCharacter;
-				lexeme[2] = '\0';
-				reader.GetNextCharacter();
-			} else {
-				type = lt;
-				lexeme[1] = '\0';
-			}
-			break;
-      case '>': // gt, ge
-         lexeme [0] = nextCharacter;
+         lexeme[0] = nextCharacter;
          nextCharacter = reader.GetNextCharacter().character;
-         if (nextCharacter == '=') {
+         if (nextCharacter == '=')
+         {
+            type = le;
+            lexeme[1] = nextCharacter;
+            lexeme[2] = '\0';
+            reader.GetNextCharacter();
+         }
+         else
+         {
+            type = lt;
+            lexeme[1] = '\0';
+         }
+         break;
+      case '>': // gt, ge
+         lexeme[0] = nextCharacter;
+         nextCharacter = reader.GetNextCharacter().character;
+         if (nextCharacter == '=')
+         {
             type = ge;
             lexeme[1] = nextCharacter;
             lexeme[2] = '\0';
             reader.GetNextCharacter();
-         } else {
+         }
+         else
+         {
             type = gt;
             lexeme[1] = '\0';
          }
-			break;
+         break;
       case ':': // ==
          type = eq;
          lexeme[0] = nextCharacter;
@@ -1076,7 +1093,8 @@ void GetNextToken(TOKEN tokens[]) {
 #endif
 }
 
-const char *TokenDescription(TOKENTYPE type) {
+const char *TokenDescription(TOKENTYPE type)
+{
    int i;
    bool isFound;
 
