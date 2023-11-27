@@ -99,10 +99,17 @@ const TOKENTABLERECORD TOKENDICT[] = {
     {absval, "absval", true},
     {yes, "yes", true},
     {no, "no", true},
+	 {var, "var", true},
+    {num, "int", true},
+    {truth, "truth", true},
+    {con, "con", true},
+    {input, "input", true},
     {divider, "divider", false},
     {endline, "endline", false},
     {oparen, "oparen", false},
     {cloparen, "cloparen", false},
+    {colon, "colon", false},
+    {coloneq, "coloneq", false},
     {lt, "lt", false},
     {le, "le", false},
     {eq, "eq", false},
@@ -113,7 +120,9 @@ const TOKENTABLERECORD TOKENDICT[] = {
     {mul, "mul", false},
     {divis, "divis", false},
     {mod, "mod", false},
-    {pow, "pow", false}};
+    {pow, "pow", false},
+    {inc, "inc", false},
+    {reduce, "reduce", false}};
 
 struct TOKEN
 {
@@ -1379,6 +1388,21 @@ void GetNextToken(TOKEN tokens[])
          lexeme[1] = '\0';
          reader.GetNextCharacter();
          break;
+		case '@':
+         lexeme[0] = nextCharacter;
+         nextCharacter = reader.GetNextCharacter().character;
+         if ( nextCharacter == '=' )
+         {
+            type = coloneq;
+            lexeme[1] = nextCharacter; lexeme[2] = '\0';
+            reader.GetNextCharacter();
+         }
+         else
+         {
+            type = colon;
+            lexeme[1] = '\0';
+         }
+         break;
       case '<': // lt, le
          lexeme[0] = nextCharacter;
          nextCharacter = reader.GetNextCharacter().character;
@@ -1430,7 +1454,24 @@ void GetNextToken(TOKEN tokens[])
          reader.GetNextCharacter();
          break;
       case '+': // -
-         type = sub;
+         lexeme[0] = nextCharacter;
+            if ( reader.GetLookAheadCharacter(1).character == '+' )
+            {
+               nextCharacter = reader.GetNextCharacter().character;
+               lexeme[1] = nextCharacter;
+					lexeme[2] = '\0';
+               type = inc;
+            }
+            else
+            {
+               type = sub;
+               lexeme[0] = nextCharacter;
+					lexeme[1] = '\0';
+            }
+         reader.GetNextCharacter();
+         break;
+      case '$': // --
+         type = reduce;
          lexeme[0] = nextCharacter;
          lexeme[1] = '\0';
          reader.GetNextCharacter();
