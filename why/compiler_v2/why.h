@@ -4,7 +4,7 @@
 //    WHY_EXCEPTION, LISTER, READER, CODE, and IDENTIFIER_TABLE
 //
 // *Note* Several common classes are commented to indicate their
-//    required evolution to support incremental development of the 
+//    required evolution to support incremental development of the
 //    why compiler
 //
 // why.h
@@ -20,10 +20,10 @@ const int MAXIMUMIDENTIFIERS      = 500;
 
 
 enum DATATYPE
-{ 
+{
    NOTYPE,
-   INTEGERTYPE,
-   BOOLEANTYPE,
+   numeric,
+   boolean,
 //--------------------------------------------------
 // ADDED FOR why9
 //--------------------------------------------------
@@ -32,7 +32,7 @@ enum DATATYPE
 
 /*
 enum DATATYPE
-{ 
+{
    NOTYPE,
    INTTYPE,
    BOOLTYPE,
@@ -44,7 +44,7 @@ enum DATATYPE
 */
 
 enum IDENTIFIERSCOPE
-{ 
+{
    GLOBALSCOPE,
    PROGRAMMODULESCOPE,
    SUBPROGRAMMODULESCOPE
@@ -89,8 +89,8 @@ public:
    //-----------------------------------------------------------
    char *GetDescription()
    //-----------------------------------------------------------
-   { 
-      return(description); 
+   {
+      return(description);
    }
 };
 
@@ -129,7 +129,7 @@ LISTER::LISTER(const int LINESPERPAGE): LINESPERPAGE(LINESPERPAGE)
 LISTER::~LISTER()
 //-----------------------------------------------------------
 {
-   if ( LIST.is_open() ) 
+   if ( LIST.is_open() )
    {
       LIST.flush();
       LIST.close();
@@ -243,7 +243,7 @@ private:
 
 //-----------------------------------------------------------
 template<int CALLBACKSALLOWED>
-READER<CALLBACKSALLOWED>::READER(const int SOURCELINELENGTH,const int LOOKAHEAD): 
+READER<CALLBACKSALLOWED>::READER(const int SOURCELINELENGTH,const int LOOKAHEAD):
    SOURCELINELENGTH(SOURCELINELENGTH),LOOKAHEAD(LOOKAHEAD)
 //-----------------------------------------------------------
 {
@@ -276,7 +276,7 @@ void READER<CALLBACKSALLOWED>::OpenFile(const char sourceFileName[])
    SOURCE.open(fullFileName,ios::in);
    if ( !SOURCE.is_open() ) throw( WHY_EXCEPTION("Unable to open source file") );
 
-// Read first source line and "fill" nextCharacters[] 
+// Read first source line and "fill" nextCharacters[]
    ReadSourceLine();
    for (int i = 0; i <= LOOKAHEAD; i++)
    {
@@ -314,7 +314,7 @@ NEXTCHARACTER READER<CALLBACKSALLOWED>::GetNextCharacter()
       character = READER::EOPC;
 //      character = EOPC;
    else
-   { 
+   {
       if ( sourceLineIndex <= ((int) strlen(sourceLine)-1) )
       {
          character = sourceLine[sourceLineIndex];
@@ -328,10 +328,10 @@ NEXTCHARACTER READER<CALLBACKSALLOWED>::GetNextCharacter()
    }
 
 // Only non-printable characters allowed are EOPC,'\n', and '\t', others are changed to ' '
-   if ( iscntrl(character) 
+   if ( iscntrl(character)
     && !(    (character == READER::EOPC)
-          || (character == READER::EOLC) 
-          || (character == READER::TABC) 
+          || (character == READER::EOLC)
+          || (character == READER::TABC)
         )
       )
       character = ' ';
@@ -342,7 +342,7 @@ NEXTCHARACTER READER<CALLBACKSALLOWED>::GetNextCharacter()
 {
    char information[80+1];
 
-   if      ( isprint(character) ) 
+   if      ( isprint(character) )
       sprintf(information,"At (%4d:%3d) %02X = %c",
          nextCharacters[LOOKAHEAD].sourceLineNumber,
          nextCharacters[LOOKAHEAD].sourceLineIndex,
@@ -416,7 +416,7 @@ void READER<CALLBACKSALLOWED>::ReadSourceLine()
          SOURCE.clear();
       }
    // Erase *ALL* control characters at end of source line (if any)
-      while ( (0 <= (int) strlen(sourceLine)-1) && 
+      while ( (0 <= (int) strlen(sourceLine)-1) &&
               iscntrl(sourceLine[(int) strlen(sourceLine)-1]) )
          sourceLine[(int) strlen(sourceLine)-1] = '\0';
       sourceLineIndex = 0;
@@ -480,24 +480,24 @@ public:
    {
       return( identifierTable[index].scope == scopes );
    }
-   int GetScope(int index) 
-   { 
+   int GetScope(int index)
+   {
       return( identifierTable[index].scope );
    }
    IDENTIFIER_TYPE GetType(int index)
-   { 
+   {
       return( identifierTable[index].identifierType );
    }
    char *GetLexeme(int index)
-   { 
+   {
       return( identifierTable[index].lexeme );
    }
    char *GetReference(int index)
-   { 
+   {
       return( identifierTable[index].reference );
    }
    DATATYPE GetDatatype(int index)
-   { 
+   {
       return( identifierTable[index].datatype );
    }
 //--------------------------------------------------
@@ -542,8 +542,8 @@ const char IDENTIFIER_TABLE::DATATYPENAMES[][9+1] =
 //-----------------------------------------------------------
 {
    "NOTYPE",
-   "INTEGER",
-   "BOOLEAN",
+   "numeric",
+   "boolean",
 //--------------------------------------------------
 // ADDED FOR why9
 //--------------------------------------------------
@@ -694,8 +694,8 @@ void IDENTIFIER_TABLE::ExitNestedStaticScope()
       {
          identifiers++;
       /*
-         A null-string lexeme ensures subprogram module formal parameters are 
-            not found when out-of-scope, but still allows identifier type to 
+         A null-string lexeme ensures subprogram module formal parameters are
+            not found when out-of-scope, but still allows identifier type to
             remain available for subprogram reference semantic analysis.
       */
          identifierTable[identifiers].lexeme[0] = '\0';
@@ -760,7 +760,7 @@ int IDENTIFIER_TABLE::GetCountOfFormalParameters(int index)
 {
 /*
    Assumes compiler has verified that
-      (1) index represents a subprogram module identifier; and 
+      (1) index represents a subprogram module identifier; and
       (2) all the subprogram module formal parameters immediately follow the
           subprogram module identifier in identifier table
 */
@@ -795,7 +795,7 @@ class CODE
 //===========================================================
 {
 /*
-   why static data--global variable/constant definitions, string literals, and 
+   why static data--global variable/constant definitions, string literals, and
       PROGRAM module variables/constants--are parsed both very early in the
       compile and near the end of the compile. As a result, their STM code must
       be "stored" because the code cannot be emitted until *AFTER* the entire
@@ -803,8 +803,8 @@ class CODE
 
    why dynamic (frame-resident) data--subprogram module formal parameters and
       local variables/constants--have storage space accounted for when their
-      definitions are parsed. The frame space is then allocated using STM 
-      statements emitted as part of the subprogram module prolog code. 
+      definitions are parsed. The frame space is then allocated using STM
+      statements emitted as part of the subprogram module prolog code.
 */
 private:
    struct DATARECORD
@@ -894,7 +894,7 @@ CODE::~CODE()
 //-----------------------------------------------------------
 {
    if ( STM.is_open() )
-   { 
+   {
       STM.flush();
       STM.close();
    }
@@ -947,7 +947,7 @@ void CODE::EmitEndingCode()
 //--------------------------------------------------
 {
    char reference[SOURCELINELENGTH+1];
-   
+
    EmitUnformattedLine("");
    EmitUnformattedLine(";------------------------------------------------------------");
    EmitUnformattedLine("; Issue \"Run-time error #X..X near line #X..X\" to handle run-time errors");

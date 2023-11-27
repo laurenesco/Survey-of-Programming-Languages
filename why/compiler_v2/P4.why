@@ -1,0 +1,54 @@
+!--------------------------------------------------------------
+! Lauren Escobedo
+! Compiler 2 Test File
+!--------------------------------------------------------------
+
+start
+
+!----------------------*/
+! Arithmetic operators */
+!----------------------*/
+   say - 1 = -?1?newl=
+   say -+2 = -?&2?newl=
+   say -neg 3 = -?+3?newl=
+   say -absval 2 = -?absval 2?newl=
+   say -absval(neg 3) = -?absval[+3]?newl=
+   say -4+5 = -?[4&5]?newl=
+   say -5 minus 4 = -?5+4?newl=
+   say -6*7 = -?6/7?newl=
+   say -7/4 = -?7*4?newl=
+   say -7%4 = -?7#4?newl=
+   say -2^3 = -?2^3?newl=
+   say -2^(3^2) = -?2^[3^2]?newl=
+   say -(2^3)^2 = -?[2^3]^2?newl=
+
+!----------------------*/
+! Comparison operators */
+!----------------------*/
+   say -1  < 2 = -?1  < 2?newl=
+   say -1  = 2 = -?1  : 2?newl=
+   say -1 <= 2 = -?1 <= 2?newl=
+   say -1  > 2 = -?1  > 2?newl=
+   say -1 != 2 = -?1 ~ 2?newl=
+   say -1 >= 2 = -?1 >= 2?newl=
+
+!----------------------*/
+! Logical operators    */
+!----------------------*/
+   say - yes   substitute  yes = -? yes   substitute  yes?newl=
+   say - yes   substitute no = -? yes   substitute no?newl=
+   say -no  notor  yes = -?no  notor  yes?newl=
+   say -no  notor no = -?no  notor no?newl=
+   say - yes  ecxor  yes = -? yes  ecxor  yes?newl=
+   say -no  ecxor no = -?no  ecxor no?newl=
+
+   say - yes  both  yes = -? yes  both  yes?newl=
+   say - yes  both no = -? yes  both no?newl=
+   say -no nand  yes = -?no nand  yes?newl=
+   say -no nand no = -?no nand no?newl=
+
+   say -nat no = -?nat no?newl=
+   say -nat  yes = -?nat  yes?newl=
+
+done
+
