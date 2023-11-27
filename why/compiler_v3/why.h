@@ -50,7 +50,7 @@ enum IDENTIFIERSCOPE
    SUBPROGRAMMODULESCOPE
 };
 
-enum IDENTIFIER_TYPE
+enum IDENTIFIERTYPE
 {
    GLOBAL_VARIABLE,           // static global variable data
    GLOBAL_CONSTANT,           // static global constant data
@@ -430,15 +430,15 @@ void READER<CALLBACKSALLOWED>::ReadSourceLine()
 }
 
 //===========================================================
-class IDENTIFIER_TABLE
+class IDENTIFIERTABLE
 //===========================================================
 {
 private:
-   struct IDENTIFIER_RECORD
+   struct IDENTIFIERRECORD
    {
       int scope;
       char lexeme[MAXIMUMLENGTHIDENTIFIER+1];
-      IDENTIFIER_TYPE identifierType;
+      IDENTIFIERTYPE identifierType;
       char reference[MAXIMUMLENGTHIDENTIFIER+1];
       DATATYPE datatype;
 //--------------------------------------------------
@@ -454,19 +454,19 @@ private:
 private:
    int capacity;
    int identifiers;
-   IDENTIFIER_RECORD *identifierTable;
+   IDENTIFIERRECORD *identifierTable;
    int scopes;
    int *scopeTable;
    LISTER *lister;
 
 public:
-   IDENTIFIER_TABLE(LISTER *lister,int capacity);
-   ~IDENTIFIER_TABLE();
+   IDENTIFIERTABLE(LISTER *lister,int capacity);
+   ~IDENTIFIERTABLE();
    int GetIndex(const char lexeme[],bool &isInTable);
 //--------------------------------------------------
 // MODIFIED FOR why8
 //--------------------------------------------------
-   void AddToTable(const char lexeme[],IDENTIFIER_TYPE identifierType,
+   void AddToTable(const char lexeme[],IDENTIFIERTYPE identifierType,
                    DATATYPE datatype,const char reference[],int dimensions = 0);
    void EnterNestedStaticScope();
    void ExitNestedStaticScope();
@@ -484,7 +484,7 @@ public:
    {
       return( identifierTable[index].scope );
    }
-   IDENTIFIER_TYPE GetType(int index)
+   IDENTIFIERTYPE GetType(int index)
    {
       return( identifierTable[index].identifierType );
    }
@@ -514,7 +514,7 @@ public:
 };
 
 //-----------------------------------------------------------
-const char IDENTIFIER_TABLE::IDENTIFIERTYPENAMES[][26+1] =
+const char IDENTIFIERTABLE::IDENTIFIERTYPENAMES[][26+1] =
 //-----------------------------------------------------------
 {
    "GLOBAL_VARIABLE",
@@ -538,7 +538,7 @@ const char IDENTIFIER_TABLE::IDENTIFIERTYPENAMES[][26+1] =
 };
 
 //-----------------------------------------------------------
-const char IDENTIFIER_TABLE::DATATYPENAMES[][9+1] =
+const char IDENTIFIERTABLE::DATATYPENAMES[][9+1] =
 //-----------------------------------------------------------
 {
    "NOTYPE",
@@ -551,19 +551,19 @@ const char IDENTIFIER_TABLE::DATATYPENAMES[][9+1] =
 };
 
 //-----------------------------------------------------------
-IDENTIFIER_TABLE::IDENTIFIER_TABLE(LISTER *lister,int capacity)
+IDENTIFIERTABLE::IDENTIFIERTABLE(LISTER *lister,int capacity)
 //-----------------------------------------------------------
 {
    this->lister = lister;
    this->capacity = capacity;
-   identifierTable = new IDENTIFIER_RECORD [ capacity+1 ];
+   identifierTable = new IDENTIFIERRECORD [ capacity+1 ];
    identifiers = 0;
    scopeTable = new int [ capacity+1 ];
    scopes = 0;
 }
 
 //-----------------------------------------------------------
-IDENTIFIER_TABLE::~IDENTIFIER_TABLE()
+IDENTIFIERTABLE::~IDENTIFIERTABLE()
 //-----------------------------------------------------------
 {
    delete [] identifierTable;
@@ -571,7 +571,7 @@ IDENTIFIER_TABLE::~IDENTIFIER_TABLE()
 }
 
 //-----------------------------------------------------------
-int IDENTIFIER_TABLE::GetIndex(const char lexeme[],bool &isInTable)
+int IDENTIFIERTABLE::GetIndex(const char lexeme[],bool &isInTable)
 //-----------------------------------------------------------
 {
 /*
@@ -599,7 +599,7 @@ int IDENTIFIER_TABLE::GetIndex(const char lexeme[],bool &isInTable)
          index -= 1;
    }
 
-#ifdef TRACEIDENTIFIER_TABLE
+#ifdef TRACEIDENTIFIERTABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -616,7 +616,7 @@ int IDENTIFIER_TABLE::GetIndex(const char lexeme[],bool &isInTable)
 }
 
 //-----------------------------------------------------------
-void IDENTIFIER_TABLE::AddToTable(const char lexeme[],IDENTIFIER_TYPE identifierType,
+void IDENTIFIERTABLE::AddToTable(const char lexeme[],IDENTIFIERTYPE identifierType,
                                  DATATYPE datatype,const char reference[],int dimensions /* = 0*/)
 //-----------------------------------------------------------
 {
@@ -637,7 +637,7 @@ void IDENTIFIER_TABLE::AddToTable(const char lexeme[],IDENTIFIER_TYPE identifier
       identifierTable[identifiers].dimensions = dimensions;
    }
 
-#ifdef TRACEIDENTIFIER_TABLE
+#ifdef TRACEIDENTIFIERTABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -653,12 +653,12 @@ void IDENTIFIER_TABLE::AddToTable(const char lexeme[],IDENTIFIER_TYPE identifier
 }
 
 //--------------------------------------------------
-void IDENTIFIER_TABLE::EnterNestedStaticScope()
+void IDENTIFIERTABLE::EnterNestedStaticScope()
 //--------------------------------------------------
 {
    scopeTable[++scopes] = identifiers;
 
-#ifdef TRACEIDENTIFIER_TABLE
+#ifdef TRACEIDENTIFIERTABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -673,7 +673,7 @@ void IDENTIFIER_TABLE::EnterNestedStaticScope()
 //--------------------------------------------------
 // UPDATED FOR why6, why7
 //--------------------------------------------------
-void IDENTIFIER_TABLE::ExitNestedStaticScope()
+void IDENTIFIERTABLE::ExitNestedStaticScope()
 //--------------------------------------------------
 {
 /*
@@ -701,7 +701,7 @@ void IDENTIFIER_TABLE::ExitNestedStaticScope()
          identifierTable[identifiers].lexeme[0] = '\0';
       }
 
-#ifdef TRACEIDENTIFIER_TABLE
+#ifdef TRACEIDENTIFIERTABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -714,7 +714,7 @@ void IDENTIFIER_TABLE::ExitNestedStaticScope()
 }
 
 //--------------------------------------------------
-void IDENTIFIER_TABLE::DisplayTableContents(const char description[])
+void IDENTIFIERTABLE::DisplayTableContents(const char description[])
 //--------------------------------------------------
 {
 /*
@@ -755,7 +755,7 @@ XXX   XXX XXXXXXXXX        XXX XXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXX X
 //--------------------------------------------------
 // ADDED FOR why6
 //--------------------------------------------------
-int IDENTIFIER_TABLE::GetCountOfFormalParameters(int index)
+int IDENTIFIERTABLE::GetCountOfFormalParameters(int index)
 //--------------------------------------------------
 {
 /*
@@ -777,7 +777,7 @@ int IDENTIFIER_TABLE::GetCountOfFormalParameters(int index)
       index++;
    }
 
-#ifdef TRACEIDENTIFIER_TABLE
+#ifdef TRACEIDENTIFIERTABLE
 {
    char information[SOURCELINELENGTH+1];
 
@@ -827,7 +827,7 @@ private:
    int FBOffset;
    bool isInModuleBody;
    int moduleIdentifierIndex;
-   IDENTIFIER_TYPE moduleIdentifierType;
+   IDENTIFIERTYPE moduleIdentifierType;
 //--------------------------------------------------
 // ADDED FOR why9
 //--------------------------------------------------
@@ -855,9 +855,9 @@ public:
    int GetFBOffset();
    void AddInstructionToInitializeFrameData(const char mnemonic[],const char operand[],const char comment[] = "");
    void EmitFrameData();
-   void EnterModuleBody(IDENTIFIER_TYPE moduleIdentifierType,int moduleIdentifierIndex);
+   void EnterModuleBody(IDENTIFIERTYPE moduleIdentifierType,int moduleIdentifierIndex);
    void ExitModuleBody();
-   bool IsInModuleBody(IDENTIFIER_TYPE moduleIdentifierType);
+   bool IsInModuleBody(IDENTIFIERTYPE moduleIdentifierType);
    int GetModuleIdentifierIndex();
 //--------------------------------------------------
 // ADDED FOR why9
@@ -1118,7 +1118,7 @@ void CODE::EmitFrameData()
 }
 
 //--------------------------------------------------
-void CODE::EnterModuleBody(IDENTIFIER_TYPE moduleIdentifierType,int moduleIdentifierIndex)
+void CODE::EnterModuleBody(IDENTIFIERTYPE moduleIdentifierType,int moduleIdentifierIndex)
 //--------------------------------------------------
 {
    isInModuleBody = true;
@@ -1134,7 +1134,7 @@ void CODE::ExitModuleBody()
 }
 
 //--------------------------------------------------
-bool CODE::IsInModuleBody(IDENTIFIER_TYPE moduleIdentifierType)
+bool CODE::IsInModuleBody(IDENTIFIERTYPE moduleIdentifierType)
 //--------------------------------------------------
 {
    return( isInModuleBody && (this->moduleIdentifierType == moduleIdentifierType) );

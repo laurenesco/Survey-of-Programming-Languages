@@ -100,7 +100,7 @@ const TOKENTABLERECORD TOKENDICT[] = {
     {yes, "yes", true},
     {no, "no", true},
 	 {var, "var", true},
-    {num, "int", true},
+    {num, "num", true},
     {truth, "truth", true},
     {con, "con", true},
     {input, "input", true},

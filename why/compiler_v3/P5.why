@@ -1,39 +1,34 @@
-/*---------------------------------------------------------*/
-; Dr. Art Hanna
-; Problem #5
-; P5.spl
-;------------------------------------------------------------
+!---------------------------------------------------------
+! Dr. Art Hanna
+! Problem #5
+! P5.spl
+!---------------------------------------------------------
 
-VAR x1: INT.
-CON c1: INT := 1,c2: BOOL := true.
-VAR x2: INT,x3: INT.
+var x1@ num =
+con c1@ num @= 1 ? c2@ truth @= yes =
+var x2@ num ? x3@ num =
 
-PROGRAM
-   VAR sum: INT, x1: INT.
-   VAR b1: BOOL,b2: BOOL.
-   CON c3: INT := 3,c4: BOOL := false.
+start
+   var sum@ num ? x1@ num =
+   var b1@ truth ? b2@ truth =
+   con c3@ num @= 3 ? c4@ truth @= no =
 
-   PRINT "c1 = ",c1,ENDL.
-   PRINT "c2 = ",c2,ENDL.
-   PRINT "c3 = ",c3,ENDL.
-   PRINT "c4 = ",c4,ENDL.
+   say - c1 = - ? c1 ? newl =
+   say - c2 = - ? c2 ? newl =
+   say - c3 = - ? c3 ? newl =
+   say - c4 = - ? c4 ? newl =
 
-/* Generates a static semantic (context-dependent) 
-      error when un-commmented. Try it and see!
-   c1 := 2.
-*/
-   x1 := 0.
-   INPUT "x1? " x1.
-   INPUT x2.
-   sum := x1+x2+c1.
-   PRINT "x1+x2+c1 = ",sum,ENDL.
+   x1 @= 0 =
+   input - x1? - x1 =
+   input x2 =
+   sum @= x1+x2+c1 =
+   say -x1+x2+c1 = - ? sum ? newl =
 
-; test new increment and decrement operators   
-   PRINT "x1 = ",x1,", ++x1 = ",++x1,ENDL.
-   PRINT "x1 = ",x1,", --x1 = ",--x1,ENDL.
+   say - x1 = - ? x1 ? -, ++x1 = - ? ++x1 ? newl =
+   say - x1 = - ? x1 ? -, $x1 = - ? $x1 ? newl =
 
-   INPUT "b1? " b1.
-   b2 := NOT(b1) OR (c2 XOR c4).
-   PRINT "b1 = ",b1,", b2 = ",b2,ENDL.
-END
+   input - b1? - b1 =
+   b2 @= nat[b1] substitute [c2 ecxor c4] =
+   say - b1 = - ? b1 ? - , b2 = - ? b2 ? newl =
+done
 
