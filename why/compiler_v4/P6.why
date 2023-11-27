@@ -1,0 +1,22 @@
+!-------------------------------------------------------------
+! Lauren Escobedo
+! Compiler v_4 Test File 1
+!-------------------------------------------------------------
+
+start
+   var x@ num =
+   var y@ num =
+
+   startthis
+      input - x? - x =
+   continueif [ x > 0 ]
+      input - y? - y =
+      check   [ x < y ] ifyes
+         say - x  < y - ? cr =
+      alsocheck [ x : y ] ifyes
+         say - x  = y - ? cr =
+      alsocheck [ x > y ] ifyes
+         say - x  > y - ? cr =
+      done
+   done
+done
