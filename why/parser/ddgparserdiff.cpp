@@ -63,8 +63,8 @@ const TOKENTABLERECORD TOKENTABLE[] =
         {EOPTOKEN, "EOPTOKEN", false},
         {UNKTOKEN, "UNKTOKEN", false},
         {Function, "FUNCTION", true},
-        {EndFunction, "END", true},
-        {PutOut, "PRINT", true},
+        {EndFunction, "ENDFUNCTION", true},
+        {PutOut, "PUTOUT", true},
         {ENDL, "ENDL", true},
         {COMMA, "COMMA", false},
         {PERIOD, "PERIOD", false},
@@ -236,6 +236,8 @@ void ParseStatement(TOKEN tokens[])
 
     EnterModule("Statement");
 
+    // GetNextToken(tokens);
+    
     switch (tokens[0].type)
     {
     case PutOut:
@@ -262,9 +264,7 @@ void ParsePRINTStatement(TOKEN tokens[])
 
     EnterModule("PRINTStatement");
 
-    if (tokens[0].type == STRING && strcmp(tokens[0].lexeme, "...") == 0)
-    {
-        GetNextToken(tokens);
+
         do
         {
             GetNextToken(tokens);
@@ -282,7 +282,7 @@ void ParsePRINTStatement(TOKEN tokens[])
                                      "Expecting string or ENDL");
             }
         } while (tokens[0].type == COMMA);
-    }
+    
 
     if (tokens[0].type != PERIOD)
         ProcessCompilerError(tokens[0].sourceLineNumber, tokens[0].sourceLineIndex,
@@ -328,7 +328,7 @@ void GetNextToken(TOKEN tokens[])
 
     char nextCharacter = reader.GetLookAheadCharacter(0).character;
 
-    if ((nextCharacter == '*') && (reader.GetLookAheadCharacter(1).character == '*') && (reader.GetLookAheadCharacter(2).character == '*') || ((nextCharacter == '\\') && (reader.GetLookAheadCharacter(1).character == '*')))
+    // if ((nextCharacter == '*') && (reader.GetLookAheadCharacter(1).character == '*') && (reader.GetLookAheadCharacter(2).character == '*') || ((nextCharacter == '\\') && (reader.GetLookAheadCharacter(1).character == '*')))
         //============================================================
         // "Eat" white space and comments
         //============================================================

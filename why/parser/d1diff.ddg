@@ -5,5 +5,5 @@ Shyann Francis
 *\
 
 Function
-	PutOut ... ~Hello World!~ ...
+	PutOut ~Hello World!~.
 EndFunction
